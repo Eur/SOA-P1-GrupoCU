@@ -1,0 +1,40 @@
+# Ejecutables y binarios
+lottery_scheduler
+*.o
+*.a
+*.so
+
+# Archivos de compilación
+build/
+
+# Sanitizers y herramientas de análisis
+*.log
+*.supp
+
+# Resultados masivos de experimentos (conservar solo los seleccionados)
+results/*.csv
+!results/.gitkeep
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE y editores
+.vscode/
+.idea/
+*.code-workspace
+
+# Dependencias externas compiladas
+*.d
+
+# Archivos de cobertura
+*.gcno
+*.gcda
+*.gcov
+
+# Binarios y objetos de tests
+tests/*.out
+tests/*.bin
