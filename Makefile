@@ -2,7 +2,6 @@ CC := gcc
 CFLAGS := -O2 -std=c17 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread
 
 TARGET := lotery_scheduler
-SOURCES := src/main.c src/double_linked_list.c
 SOURCES := src/main.c src/double_linked_list.c src/parser.c
 OBJECTS := $(SOURCES:.c=.o)
 
