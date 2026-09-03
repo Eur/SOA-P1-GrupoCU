@@ -2,6 +2,7 @@
 #ifndef DOUBLE_LINKED_LIST_H
 #define DOUBLE_LINKED_LIST_H
 
+#include <stdbool.h> 
 
 /**
  * This struct holds the data related to a task

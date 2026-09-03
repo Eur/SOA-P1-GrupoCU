@@ -2,7 +2,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+
+#include <stdio.h>   
 #include "double_linked_list.h"
+#include "parser.h"   
 
 
 int main(void) {
@@ -11,6 +14,21 @@ int main(void) {
     // this is just a placeholder so all the team can test
     // that this is working in each dev environments.
     struct node *head;
+
+/* Prueba 1: archivo válido */
+    printf("=== base.csv ===\n");
+    if (parser_load("tests/base.csv", &head) == 0) {
+        print_list(head);
+        clean_list(&head);
+    }
+
+    /* Prueba 2: archivo inválido */
+    printf("\n=== validation_error.csv (debe fallar) ===\n");
+    if (parser_load("tests/validation_error.csv", &head) != 0) {
+        printf("Rechazado correctamente.\n");
+    }
+
+
     init_list(&head);
 
     insert_node(&head, NULL, 1, 10, 5);
@@ -31,4 +49,8 @@ int main(void) {
     // beacuse these two nodes are not freed.
     insert_node(&head, NULL, 5, 50, 25);
     insert_node(&head, NULL, 6, 60, 30);
+
+
+
+
 }
