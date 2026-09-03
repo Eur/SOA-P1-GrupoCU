@@ -1,19 +1,22 @@
+// System includes
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+
+// Project includes
 #include "double_linked_list.h"
 
-void init_list(struct node ** head) {
+void dll_init_list(struct node ** head) {
     *head = NULL;
 }
 
-bool insert_node(struct node ** head,
-                 void * data, uint32_t id,
+bool dll_insert_node(struct node ** head,
+                     void * data, uint32_t id,
                  uint32_t tickets,
                  uint32_t work_units) {
-    
+
     struct node * new_node = (struct node *)malloc(sizeof(struct node));
     if (new_node == NULL) {
         return false;
@@ -23,7 +26,7 @@ bool insert_node(struct node ** head,
     new_node->id = id;
     new_node->tickets = tickets;
     new_node->work_units = work_units;
-    
+
     /*
      * If the head is NULL, then this new element
      * will be the first element in the list, if
@@ -50,7 +53,7 @@ bool insert_node(struct node ** head,
 }
 
 
-bool remove_node(struct node ** head, uint32_t id) {
+bool dll_remove_node(struct node ** head, uint32_t id) {
     struct node * current = *head;
     while (current != NULL) {
         if (current->id == id) {
@@ -70,7 +73,7 @@ bool remove_node(struct node ** head, uint32_t id) {
     return false;
 }
 
-bool clean_list(struct node ** head) {
+bool dll_clean_list(struct node ** head) {
     struct node * current = *head;
     while (current != NULL) {
         struct node * next = current->next;
@@ -81,7 +84,7 @@ bool clean_list(struct node ** head) {
     return true;
 }
 
-void print_list(struct node * head) {
+void dll_print_list(struct node * head) {
     printf("Current List:\n");
     if (head == NULL) {
         printf("The list is empty.\n");

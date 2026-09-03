@@ -1,21 +1,26 @@
+
+// System includes
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-#include <stdio.h>   
+// Project includes
+#include "rng.h"
 #include "double_linked_list.h"
-#include "parser.h"   
 
 
 int main(void) {
 
-    // TODO: delete this when the scheduler is implemented,
-    // this is just a placeholder so all the team can test
-    // that this is working in each dev environments.
+    /*
+     * TODO: delete this when the scheduler is implemented,
+     * this is just a placeholder so all the team can test
+     * that this is working in each dev environments.
+     */
     struct node *head;
-
-/* Prueba 1: archivo válido */
+  
+  /* Prueba 1: archivo válido */
     printf("=== base.csv ===\n");
     if (parser_load("tests/base.csv", &head) == 0) {
         print_list(head);
@@ -28,29 +33,44 @@ int main(void) {
         printf("Rechazado correctamente.\n");
     }
 
+  
+  
+    dll_init_list(&head);
 
-    init_list(&head);
+    dll_insert_node(&head, NULL, 1, 10, 5);
+    dll_insert_node(&head, NULL, 2, 20, 10);
+    dll_print_list(head);
+    dll_remove_node(&head, 1);
+    dll_remove_node(&head, 2);
+    dll_print_list(head);
 
-    insert_node(&head, NULL, 1, 10, 5);
-    insert_node(&head, NULL, 2, 20, 10);
-    print_list(head);
-    remove_node(&head, 1);
-    remove_node(&head, 2);
-    print_list(head);
+    dll_insert_node(&head, NULL, 3, 30, 15);
+    dll_insert_node(&head, NULL, 4, 40, 20);
+    dll_print_list(head);
+    dll_clean_list(&head);
+    dll_print_list(head);
 
-    insert_node(&head, NULL, 3, 30, 15);
-    insert_node(&head, NULL, 4, 40, 20);
-    print_list(head);
-    clean_list(&head);
-    print_list(head);
+    /*
+     * If this is compiled with "make asan" this will
+     * trigger a report saying there is a memory leak,
+     * because these two nodes are not freed.
+     */
+    dll_insert_node(&head, NULL, 5, 50, 25);
+    dll_insert_node(&head, NULL, 6, 60, 30);
 
-    // If this is compiled with "make asan" this will
-    // trigger a report saying there is a memory leak,
-    // beacuse these two nodes are not freed.
-    insert_node(&head, NULL, 5, 50, 25);
-    insert_node(&head, NULL, 6, 60, 30);
+    //----------------------------
+    // Testing random generator
+    uint32_t seed = 12345;
+    if (rng_xorshift32_seed(seed) == true) {
+        uint32_t random_number;
 
+        for (int i = 0; i < 2; i++) {
+            if (rng_xorshift32_get(&random_number) == true) {
+                printf("Try %i | Seed: %u | Random num: %u\n", i, seed, random_number);
+                random_number = 0;
+            }
+        }
 
-
-
+    }
+    return 0;
 }
