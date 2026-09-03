@@ -1,3 +1,4 @@
+
 // System includes
 #include <stdbool.h>
 #include <stdint.h>
@@ -18,6 +19,22 @@ int main(void) {
      * that this is working in each dev environments.
      */
     struct node *head;
+  
+  /* Prueba 1: archivo válido */
+    printf("=== base.csv ===\n");
+    if (parser_load("tests/base.csv", &head) == 0) {
+        print_list(head);
+        clean_list(&head);
+    }
+
+    /* Prueba 2: archivo inválido */
+    printf("\n=== validation_error.csv (debe fallar) ===\n");
+    if (parser_load("tests/validation_error.csv", &head) != 0) {
+        printf("Rechazado correctamente.\n");
+    }
+
+  
+  
     dll_init_list(&head);
 
     dll_insert_node(&head, NULL, 1, 10, 5);

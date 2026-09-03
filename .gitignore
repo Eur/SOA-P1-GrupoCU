@@ -41,3 +41,6 @@ tests/*.bin
 
 # ASan reports
 asan_report.*
+tests/test_parser
+tests/test_parser.c
+tests/Makefile
