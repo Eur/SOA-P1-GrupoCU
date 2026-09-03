@@ -38,3 +38,6 @@ Thumbs.db
 # Binarios y objetos de tests
 tests/*.out
 tests/*.bin
+
+# ASan reports
+asan_report.*
