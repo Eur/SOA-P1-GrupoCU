@@ -25,14 +25,17 @@ struct node {
 };
 
 /**
- * Initializes the double linked list by setting the head pointer to NULL.
+ * @brief Initializes the double linked list by setting the head pointer to NULL.
  *
  * @param head: pointer to the head of the list
  */
-void init_list(struct node ** head);
+void dll_init_list(struct node ** head);
 
 /**
- * Inserts a new node at the end of the double linked list.
+ * @brief Inserts a new node at the end of the double linked list.
+ *
+ * @details This function allocates heap memory, so the caller is
+ * responsible for freeing the memory when the node is no longer needed.
  *
  * @param head: pointer to the head of the list
  * @param data: pointer to the data for the new node
@@ -41,30 +44,30 @@ void init_list(struct node ** head);
  * @param work_units: number of work units the task has
  * @return: true if the node was inserted successfully, false otherwise
  */
-bool insert_node(struct node ** head, void * data, uint32_t id, uint32_t tickets, uint32_t work_units);
+bool dll_insert_node(struct node ** head, void * data, uint32_t id, uint32_t tickets, uint32_t work_units);
 
 /**
- * Removes a node from the double linked list.
+ * @brief Removes a node from the double linked list.
  *
  * @param head: pointer to the head of the list
  * @param id: unique identifier for the task
  * @return: true if the node was removed successfully, false otherwise
  */
-bool remove_node(struct node ** head, uint32_t id);
+bool dll_remove_node(struct node ** head, uint32_t id);
 
 /**
- * Cleans the double linked list by removing all nodes.
+ * @brief Cleans the double linked list by removing all nodes.
  *
  * @param head: pointer to the head of the list
  * @return: true if the list was cleaned successfully, false otherwise
  */
-bool clean_list(struct node ** head);
+bool dll_clean_list(struct node ** head);
 
 /**
- * Prints the contents of the double linked list.
+ * @brief Prints the contents of the double linked list.
  *
  * @param head: pointer to the head of the list
  */
-void print_list(struct node * head);
+void dll_print_list(struct node * head);
 
 #endif // DOUBLE_LINKED_LIST_H

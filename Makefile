@@ -1,8 +1,8 @@
 CC := gcc
 CFLAGS := -O2 -std=c17 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread
 
-TARGET := lotery_scheduler
-SOURCES := src/main.c src/double_linked_list.c
+TARGET := lottery_scheduler
+SOURCES := src/main.c src/double_linked_list.c src/rng.c
 OBJECTS := $(SOURCES:.c=.o)
 
 .PHONY: all test clean
@@ -19,7 +19,7 @@ src/%.o: src/%.c
 test: $(TARGET)
 	./$(TARGET)
 
-ASAN_TARGET := lotery_scheduler_asan
+ASAN_TARGET := lottery_scheduler_asan
 ASAN_CFLAGS := $(CFLAGS) -fsanitize=address -fno-omit-frame-pointer -g
 ASAN_OBJECTS := $(SOURCES:.c=.asan.o)
 
