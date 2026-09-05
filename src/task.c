@@ -89,3 +89,11 @@ bool task_is_eligible(task_t *task)
     return eligible;
 
 }
+
+
+void task_do_work_unit(task_t *task){
+    task->pi.j++; 
+    task->pi.term *= ((2.0 * task->pi.j - 1.0) * (2.0 * task->pi.j - 1.0)) / ((2.0 * task->pi.j) * (2.0 * task->pi.j + 1.0));
+    task->pi.sum += 2.0 * task->pi.term;
+    task->work_units_done++;
+}

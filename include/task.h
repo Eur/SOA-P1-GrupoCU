@@ -106,4 +106,12 @@ bool task_transition_to_finished(task_t *task);
  */
 bool task_is_eligible(task_t *task);
 
+/**
+ * @brief  Executes one unit of work for the given task.
+ * @details Advances the arcsin(1) Taylor series by one term.
+ *          Updates pi.term, pi.sum, pi.j and work_units_done.
+ *          Must be called only while the task is in TASK_RUNNING state.
+ * @param  task  Pointer to the task to advance. Must not be NULL.
+ */
+void task_do_work_unit(task_t *task);
 #endif /* TASK_H */
