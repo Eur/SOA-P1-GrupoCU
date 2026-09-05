@@ -48,7 +48,7 @@ TEST(test_rng_multiple_gets) {
 
 int main(void) {
 
-    printf("=== Double Linked List — Unit tests ===\n\n");
+    printf("=== Random Number Generator xorshift32 — Unit tests ===\n\n");
 
     RUN(test_rng_seed_and_get);
     RUN(test_rng_multiple_gets);
