@@ -84,6 +84,19 @@ bool dll_clean_list(struct node ** head) {
     return true;
 }
 
+bool dll_find_node(struct node * head, uint32_t id, struct node ** found_node) {
+    struct node * current = head;
+    while (current != NULL) {
+        if (current->id == id) {
+            *found_node = current;
+            return true;
+        }
+        current = current->next;
+    }
+    *found_node = NULL;
+    return false;
+}
+
 void dll_print_list(struct node * head) {
     printf("Current List:\n");
     if (head == NULL) {
