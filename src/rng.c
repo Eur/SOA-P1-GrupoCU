@@ -14,13 +14,14 @@ static uint32_t rng_seed = 0;
 
 bool rng_xorshift32_seed(uint32_t seed) {
 
-    if (seed == 0) {
-        return false;
-    }
-
+    /*
+     * Even though a seed of 0 is invalid for this
+     * algorithm, we still set the seed to 0, but
+     * we return false to indicate the the seeding
+     * was not successful.
+     */
     rng_seed = seed;
-    return true;
-
+    return seed != 0;
 }
 
 bool rng_xorshift32_get(uint32_t * out_random_number) {

@@ -65,6 +65,16 @@ bool dll_remove_node(struct node ** head, uint32_t id);
 bool dll_clean_list(struct node ** head);
 
 /**
+ * @brief Finds a node in the double linked list by its unique identifier.
+ *
+ * @param head: pointer to the head of the list
+ * @param id: unique identifier for the task
+ * @param found_node: pointer to store the address of the found node
+ * @return: true if the node was found, false otherwise
+ */
+bool dll_find_node(struct node * head, uint32_t id, struct node ** found_node);
+
+/**
  * @brief Prints the contents of the double linked list.
  *
  * @param head: pointer to the head of the list
