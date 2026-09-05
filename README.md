@@ -1,13 +1,13 @@
 # Authors:
 - Edgar Chaves. 2017239281. Edjchg
-- Esteban Ureña. carné. Eur
+- Esteban Ureña. 201025605. Eur
 
-# Compilation Directives with Make
+# Main program lottery_shceduler compilation directives with Make
 
-- `make all`: this directive will compile **lotery_scheduler** binary with main.c as entry point.
+- `make all`: this directive will compile **lottery_scheduler** binary with main.c as entry point.
 - `make clean`: this directive will clean all binary and ASan reports.
-- `make test`: this directive will compile and run the executable **lotery_scheduler** with main.c as the entry point.
-- `make asan`: this directive will compile **lotery_scheduler** against AdressSanitizer. If the binary has any memory issue, then the reports from ASan will be redirected to file called asan_report.<process id> and will look something like:
+- `make test`: this directive will compile and run the executable **lottery_scheduler** with main.c as the entry point.
+- `make asan`: this directive will compile **lottery_scheduler** against AdressSanitizer. If the binary has any memory issue, then the reports from ASan will be redirected to file called asan_report.<process id> and will look something like:
 ```bash
 asan_report.1823
 
@@ -28,3 +28,8 @@ Indirect leak of 40 byte(s) in 1 object(s) allocated from:
 
 SUMMARY: AddressSanitizer: 80 byte(s) leaked in 2 allocation(s).
 ```
+
+# Unit test compilation directives with Make
+
+- `make test_parser`: this will compile the parser tests and execute them.
+- `make clean_test_parser`: this will clean the binary created to test the parser.
