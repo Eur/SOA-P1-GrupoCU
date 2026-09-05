@@ -1,13 +1,13 @@
 # Authors:
 - Edgar Chaves. 2017239281. Edjchg
-- Esteban Ureña. carné. Eur
+- Esteban Ureña. 201025605. Eur
 
-# Compilation Directives with Make
+# Main program lottery_shceduler compilation Directives with Make
 
-- `make all`: this directive will compile **lotery_scheduler** binary with main.c as entry point.
+- `make all`: this directive will compile **lottery_scheduler** binary with main.c as entry point.
 - `make clean`: this directive will clean all binary and ASan reports.
-- `make test`: this directive will compile and run the executable **lotery_scheduler** with main.c as the entry point.
-- `make asan`: this directive will compile **lotery_scheduler** against AdressSanitizer. If the binary has any memory issue, then the reports from ASan will be redirected to file called asan_report.<process id> and will look something like:
+- `make test`: this directive will compile and run the executable **lottery_scheduler** with main.c as the entry point.
+- `make asan`: this directive will compile **lottery_scheduler** against AdressSanitizer. If the binary has any memory issue, then the reports from ASan will be redirected to file called asan_report.<process id> and will look something like:
 ```bash
 asan_report.1823
 
