@@ -21,7 +21,7 @@ static int id_exists(struct node *head, uint32_t id)
 
 int parser_load(const char *filename, struct node **head)
 {
-    init_list(head);
+    dll_init_list(head);
     FILE *file = fopen(filename, "r");
     
     if (!file) 
@@ -108,7 +108,7 @@ int parser_load(const char *filename, struct node **head)
             fprintf(stderr, "Parser: total tickets exceed UINT32_MAX at line %d: '%s'\n", lineno, line);
             goto err;
         }
-        if(!insert_node(head, NULL, id, tickets, work_units)) {
+        if(!dll_insert_node(head, NULL, id, tickets, work_units)) {
             fprintf(stderr, "Parser: failed to insert node at line %d: '%s'\n", lineno, line);
             goto err;
         }
@@ -119,7 +119,7 @@ int parser_load(const char *filename, struct node **head)
 
     if(n < MIN_TASKS) {
         fprintf(stderr, "Parser: Too few tasks in file '%s' (found %d, minimum required is %d)\n", filename, n, MIN_TASKS);
-        clean_list(head);
+        dll_clean_list(head);
         return -1;
     }
     return 0;
@@ -127,6 +127,6 @@ int parser_load(const char *filename, struct node **head)
     err:
     
         fclose(file);
-        clean_list(head);
+        dll_clean_list(head);
         return -1;
 }
