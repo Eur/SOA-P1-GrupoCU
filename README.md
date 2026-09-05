@@ -2,7 +2,7 @@
 - Edgar Chaves. 2017239281. Edjchg
 - Esteban Ureña. 201025605. Eur
 
-# Main program lottery_shceduler compilation Directives with Make
+# Main program lottery_shceduler compilation directives with Make
 
 - `make all`: this directive will compile **lottery_scheduler** binary with main.c as entry point.
 - `make clean`: this directive will clean all binary and ASan reports.
@@ -28,3 +28,8 @@ Indirect leak of 40 byte(s) in 1 object(s) allocated from:
 
 SUMMARY: AddressSanitizer: 80 byte(s) leaked in 2 allocation(s).
 ```
+
+# Unit test compilation directives with Make
+
+- `make test_parser`: this will compile the parser tests and execute them.
+- `make clean_test_parser`: this will clean the binary created to test the parser.
