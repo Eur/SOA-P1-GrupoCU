@@ -4,6 +4,10 @@
 
 #include <stdbool.h>
 
+
+#define FOR_EACH_NODE(head, cur) \
+    for (struct node *cur = head; cur != NULL; cur = cur->next)
+
 /**
  * This struct holds the data related to a task
  * to be scheduled. The node represents a part

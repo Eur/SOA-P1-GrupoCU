@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "task.h"
 #include "parser.h"
 
 #define MIN_TASKS  5
@@ -108,7 +109,14 @@ int parser_load(const char *filename, struct node **head)
             fprintf(stderr, "Parser: total tickets exceed UINT32_MAX at line %d: '%s'\n", lineno, line);
             goto err;
         }
-        if(!dll_insert_node(head, NULL, id, tickets, work_units)) {
+        
+        /*
+         * Creating a task for each node.
+         * NOTE: This should be freed inside the
+         * double linked list infraestructure.
+         */
+        task_t *task = task_create();
+        if(!dll_insert_node(head, task, id, tickets, work_units)) {
             fprintf(stderr, "Parser: failed to insert node at line %d: '%s'\n", lineno, line);
             goto err;
         }

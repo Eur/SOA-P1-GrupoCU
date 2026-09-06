@@ -65,7 +65,10 @@ bool dll_remove_node(struct node ** head, uint32_t id) {
             if (current->next != NULL) {
                 current->next->prev = current->prev;
             }
+            free(current->data); // Free the task data
+            current->data = NULL;
             free(current);
+            current = NULL;
             return true;
         }
         current = current->next;
@@ -77,6 +80,8 @@ bool dll_clean_list(struct node ** head) {
     struct node * current = *head;
     while (current != NULL) {
         struct node * next = current->next;
+        free(current->data); // Free the task data
+        current->data = NULL;
         free(current);
         current = next;
     }
