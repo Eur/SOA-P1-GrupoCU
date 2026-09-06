@@ -115,6 +115,11 @@ FILE * logger_log_tod(bool eventlog) {
     fprintf(log_file, "[%s]", time_of_day_buffer);
     fflush(log_file);
 
+    /*
+     * Not closing the file right now because we need it
+     * opened in the next step, and the next step is
+     * responsible for closing it.
+     */
     return log_file;
 }
 

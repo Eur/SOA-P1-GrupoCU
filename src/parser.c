@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 
 #include "task.h"
 #include "parser.h"
@@ -12,13 +13,11 @@
 #define MAX_TASKS  25
 #define LINE_BUF   512
 
-static int id_exists(struct node *head, uint32_t id)
-{
-    for (struct node *cur = head; cur != NULL; cur = cur->next) {
-        if (cur->id == id) return 1;
-    }
-    return 0;
-}
+/*
+ * This static var holds the path received by the 
+ * flag --log,-l.
+ */
+static char * log_events_path;
 
 int parser_load(const char *filename, struct node **head)
 {
@@ -98,7 +97,7 @@ int parser_load(const char *filename, struct node **head)
         uint32_t tickets = (uint32_t)tickets_line;
         uint32_t work_units = (uint32_t)work_units_line;    
 
-        if(id_exists(*head, id)) {
+        if (dll_find_node(*head, id, NULL)) {
             fprintf(stderr, "Parser: duplicate task_id at line %d: '%s'\n"
                             "        task_id must be unique\n",
                     lineno, line);
@@ -137,4 +136,42 @@ int parser_load(const char *filename, struct node **head)
         fclose(file);
         dll_clean_list(head);
         return -1;
+}
+
+
+int parser_parameter_get(int argc, char *argv[]) {
+    struct option long_options[] = {
+        {"log", required_argument, NULL, 'l'},
+        /* Fill rest of the arguments here*/
+        {"help", no_argument, NULL, 'h'},
+        {0    , 0                , 0    , 0}
+    };
+
+    
+    int option;
+    while ((option = getopt_long(argc, argv, "l:h", long_options, NULL)) != -1){
+        switch (option) {
+            case 'l':
+                /*
+                 * This won't crash and it is valid because optarg
+                 * is a pointer already owned by the program, and
+                 * will remain valid all the lifecycle of the execution.
+                 */
+                log_events_path = optarg;
+                break;
+            case 'h':
+                fprintf(stderr, "Parameter parser: see documentation to use this program\n");
+                return 0;
+            case '?':
+                return 1;
+            default:
+                break;
+        }
+    }
+    return 0;
+}
+
+
+char * parser_log_path_get(void) {
+    return log_events_path;
 }

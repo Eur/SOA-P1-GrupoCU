@@ -97,3 +97,16 @@ void task_do_work_unit(task_t *task){
     task->pi.sum += 2.0 * task->pi.term;
     task->work_units_done++;
 }
+
+char * task_state_enum_to_str(task_state_t task_state_enum) {
+    switch(task_state_enum) {
+        case TASK_READY:
+            return "TASK_READY";
+        case TASK_RUNNING:
+            return "TASK_RUNNING";
+        case TASK_FINISHED:
+            return "TASK_FINISHED";
+        default:
+            return "TASK_INVALID_ST";
+    }
+}

@@ -34,17 +34,27 @@ static uint64_t scheduler_calculate_cumulutive_tickets(struct node * head) {
  * tickets of the eligible tasks. The function iterates through the list of tasks,
  * summing their tickets until the cumulative sum exceeds the winner ticket number.
  */
-static struct node * scheduler_sort_winner_ticket(struct node * head, uint64_t max_ticket_range) {
+static uint32_t scheduler_sort_winner_ticket(uint64_t max_ticket_range) {
     uint32_t winner_ticket = 0;
 
     if (rng_xorshift32_get(&winner_ticket) == false) {
-        return NULL;
+        return 0;
     }
 
     winner_ticket = winner_ticket % max_ticket_range + 1;
 
-    fprintf(stdout, "Scheduler: Winner ticket: %" PRIu32 "\n", winner_ticket);
+    return winner_ticket;
+}
 
+/**
+ * @brief This function will get the winning task based on the cumulative sum
+ * of tickets
+ *
+ * @param head head of the list of tasks
+ * @param winner_ticket the winner ticket from the sort
+ * @return the node task holding the winner ticket
+ */
+static struct node * scheduler_winner_task(struct node * head, uint32_t winner_ticket) {
     uint64_t cumulative_ticket_sum = 0;
     FOR_EACH_NODE(head, current_node) {
         if (task_is_eligible(current_node->data)) {
@@ -82,16 +92,13 @@ void scheduler_main_loop(struct node *task_list_head) {
     int scheduler_sorts = 0;
     while (remaining_tasks) {
         uint64_t cumulative_ticket_sum = scheduler_calculate_cumulutive_tickets(task_list_head);
+        uint32_t winner_ticket = scheduler_sort_winner_ticket(cumulative_ticket_sum);
+        struct node * winner_task = scheduler_winner_task(task_list_head, winner_ticket);
 
-        fprintf(stdout, "Scheduler: Cumulative ticket sum: %" PRIu64 "\n", cumulative_ticket_sum);
-
-
-        struct node * winner_task = scheduler_sort_winner_ticket(task_list_head, cumulative_ticket_sum);
         if (winner_task == NULL) {
             fprintf(stdout, "Scheduler: No eligible tasks to schedule\n");
             break;
         }
-        fprintf(stdout, "Scheduler: Winner task ID: %" PRIu32 "\n", winner_task->id);
 
         /*
          * For this iteration we have the winner task, then execute
@@ -100,7 +107,19 @@ void scheduler_main_loop(struct node *task_list_head) {
          * to be able to analyze the behavior of the scheduler post-mortem.
          */
 
-        LOG_EVENT("Lottery Sort %d:, winner task: %d", scheduler_sorts, winner_task->id);
+        task_t * data_from_task = (task_t *)winner_task->data;
+
+        LOG_EVENT(
+            "[Lottery Sort] dispatch=%d, winner_id=%" PRIu32
+            ", winning_ticket=%" PRIu32 ", active_tickets=%" PRIu32
+            ", run_units=%d, completed_units=%" PRIu32 ", state=%s",
+            scheduler_sorts,
+            winner_task->id,
+            winner_ticket,
+            winner_task->tickets - data_from_task->work_units_done,
+            0,
+            data_from_task->work_units_done,
+            task_state_enum_to_str(data_from_task->state));
 
         // TODO: Implement the logic to stop the current task and start the winner task.
         remaining_tasks = false;
