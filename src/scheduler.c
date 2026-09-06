@@ -7,6 +7,7 @@
 #include "task.h"
 #include "rng.h"
 #include "scheduler.h"
+#include "logger.h"
 
 static uint64_t scheduler_calculate_cumulutive_tickets(struct node * head) {
     uint64_t cumulative_ticket_sum = 0;
@@ -78,6 +79,7 @@ struct node* scheduler_init(const char * tasks_metadata_path, uint32_t rng_seed)
 void scheduler_main_loop(struct node *task_list_head) {
 
     bool remaining_tasks = true;
+    int scheduler_sorts = 0;
     while (remaining_tasks) {
         uint64_t cumulative_ticket_sum = scheduler_calculate_cumulutive_tickets(task_list_head);
 
@@ -97,8 +99,9 @@ void scheduler_main_loop(struct node *task_list_head) {
          * one, but before that, register this decision in the log file
          * to be able to analyze the behavior of the scheduler post-mortem.
          */
-        
-         
+
+        LOG_EVENT("Lottery Sort %d:, winner task: %d", scheduler_sorts, winner_task->id);
+
         // TODO: Implement the logic to stop the current task and start the winner task.
         remaining_tasks = false;
     }

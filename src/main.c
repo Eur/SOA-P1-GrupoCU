@@ -8,6 +8,7 @@
 
 // Project includes
 #include "scheduler.h"
+#include "logger.h"
 
 
 int main(void) {
@@ -18,6 +19,9 @@ int main(void) {
     if (task_list_head == NULL) {
         return 1;
     }
+
+    
+    logger_init_structure(NULL, NULL);
 
     scheduler_main_loop(task_list_head);
 
