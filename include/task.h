@@ -114,4 +114,11 @@ bool task_is_eligible(task_t *task);
  * @param  task  Pointer to the task to advance. Must not be NULL.
  */
 void task_do_work_unit(task_t *task);
+
+/**
+ * @brief This function converts task enum state into string
+ * @param task_state_enum enum to convert to sting
+ * @return char containing the convertion string
+ */
+char * task_state_enum_to_str(task_state_t task_state_enum);
 #endif /* TASK_H */
