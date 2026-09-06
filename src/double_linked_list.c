@@ -93,12 +93,17 @@ bool dll_find_node(struct node * head, uint32_t id, struct node ** found_node) {
     struct node * current = head;
     while (current != NULL) {
         if (current->id == id) {
-            *found_node = current;
+            if (found_node != NULL && *found_node != NULL) {
+                *found_node = current;
+            }
             return true;
         }
         current = current->next;
     }
-    *found_node = NULL;
+    if (found_node != NULL && *found_node != NULL) {
+        *found_node = NULL;
+    }
+    
     return false;
 }
 

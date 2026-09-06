@@ -3,6 +3,12 @@
 
 #include "double_linked_list.h"
 
+
+typedef enum {
+    LOG_PATH = 0,
+
+} PARSER_ENUM;
+
 /**
  * Parses a CSV file with the following format:
  *
@@ -29,5 +35,23 @@
  * @return          0 on success, -1 on any error.
  */
 int parser_load(const char *filename, struct node **head);
+
+/**
+ * @brief Iterate over the parameter list specified by the user
+ * 
+ * @details Also, this function validates if the arguments are valid
+ * or not and behave accordingly to accept the command or show the help.
+ *
+ * @param argc parameter quantity
+ * @param argv array with the parameters
+ * @return 0 when successfully reads the parameters, non-zero otherwise.
+ */
+int parser_parameter_get(int argc, char *argv[]);
+
+/**
+ * @brief Get the event logs path
+ * @return a char with the path
+ */
+char * parser_log_path_get(void);
 
 #endif /* PARSER_H */

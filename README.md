@@ -33,3 +33,9 @@ SUMMARY: AddressSanitizer: 80 byte(s) leaked in 2 allocation(s).
 
 - `make test_parser`: this will compile the parser tests and execute them.
 - `make clean_test_parser`: this will clean the binary created to test the parser.
+
+# Execution mode:
+
+Some flags are available for this program:
+- `--log, -l`: this flag specifies to the program the location to save the event logs.
+- `--help, -h`: this flag shows these avilable flags.
