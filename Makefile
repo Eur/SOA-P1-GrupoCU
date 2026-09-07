@@ -3,7 +3,7 @@ CFLAGS := -O2 -std=c17 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread
 
 
 TARGET := lottery_scheduler
-SOURCES := src/main.c src/double_linked_list.c src/parser.c src/rng.c
+SOURCES := src/main.c src/double_linked_list.c src/parser.c src/rng.c src/scheduler.c src/task.c src/logger.c
 
 OBJECTS := $(SOURCES:.c=.o)
 
@@ -29,7 +29,7 @@ ASAN_CFLAGS := $(CFLAGS) -fsanitize=address -fno-omit-frame-pointer -g
 ASAN_OBJECTS := $(SOURCES:.c=.asan.o)
 
 asan: $(ASAN_TARGET)
-	export ASAN_OPTIONS=log_path=./asan_report; ./$(ASAN_TARGET)
+	export ASAN_OPTIONS=log_path=./asan_report:detect_leaks=1; ./$(ASAN_TARGET)
 
 $(ASAN_TARGET): $(ASAN_OBJECTS)
 	$(CC) $(ASAN_CFLAGS) $(ASAN_OBJECTS) -o $@
