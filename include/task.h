@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <pthread.h>
 
+#include "double_linked_list.h"
+
 /**
  * Lifecycle states of a scheduled task.
  * Valid transitions:
@@ -134,4 +136,6 @@ char * task_state_enum_to_str(task_state_t task_state_enum);
 
 
 void task_broadcast_signal_to_wake_threads(void);
+
+bool task_is_there_any_running_task(struct node *task_list_head);
 #endif /* TASK_H */

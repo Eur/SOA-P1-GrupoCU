@@ -130,6 +130,11 @@ void * task_do_work_unit(void * task_node){
         }
         
         // If the task is in RUNNING:
+
+        /*
+         * Unlocking the mutex here should be super safe
+         * because no other task is in RUNNING:
+         */
         pthread_mutex_unlock(&mutex);
 
         /*
@@ -184,4 +189,17 @@ char * task_state_enum_to_str(task_state_t task_state_enum) {
 
 void task_broadcast_signal_to_wake_threads(void) {
     pthread_cond_broadcast(&state_cond);
+}
+
+bool task_is_there_any_running_task(struct node *task_list_head) {
+    pthread_mutex_lock(&mutex);
+    FOR_EACH_NODE(task_list_head, current_task_node) {
+        task_t * task_data = (task_t *)current_task_node->data;
+        if(task_data->state == TASK_RUNNING) {
+            pthread_mutex_unlock(&mutex);
+            return true;
+        }
+    }
+    pthread_mutex_unlock(&mutex);
+    return false;
 }

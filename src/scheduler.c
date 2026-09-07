@@ -191,11 +191,5 @@ bool scheduler_deinit(struct node *task_list_head) {
 }
 
 bool scheduler_has_running_task(struct node *task_list_head) {
-    FOR_EACH_NODE(task_list_head, current_task_node) {
-        task_t * task_data = (task_t *)current_task_node->data;
-        if(task_data->state == TASK_RUNNING) {
-            return true;
-        }
-    }
-    return false;
+    return task_is_there_any_running_task(task_list_head);
 }
