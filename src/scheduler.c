@@ -9,6 +9,9 @@
 #include "scheduler.h"
 #include "logger.h"
 
+#define MAX_TASK_THREADS 25
+static pthread_t threads_per_task[MAX_TASK_THREADS];
+
 static uint64_t scheduler_calculate_cumulutive_tickets(struct node * head) {
     uint64_t cumulative_ticket_sum = 0;
     FOR_EACH_NODE(head, current_node) {
@@ -82,6 +85,20 @@ struct node* scheduler_init(const char * tasks_metadata_path, uint32_t rng_seed)
 
     rng_xorshift32_seed(rng_seed);
 
+    int number_of_tasks = 0;
+    int task_thread_creation_result = 0;
+    // Initiating the threads per task:
+    FOR_EACH_NODE(task_list_head, current_task_node) {
+        task_t * task_data = current_task_node->data;
+        task_thread_creation_result = pthread_create(&threads_per_task[current_task_node->id], NULL, task_do_work_unit, (void*)task_data);
+        if (task_thread_creation_result != 0) {
+            return NULL;
+        }
+        number_of_tasks++;
+    }
+
+
+
     return task_list_head;
 }
 
@@ -122,6 +139,9 @@ void scheduler_main_loop(struct node *task_list_head) {
             task_state_enum_to_str(data_from_task->state));
 
         // TODO: Implement the logic to stop the current task and start the winner task.
+        
+
+
         remaining_tasks = false;
     }
 }
@@ -131,6 +151,8 @@ bool scheduler_deinit(struct node *task_list_head) {
         fprintf(stderr, "Scheduler: Failed to clean up task list\n");
         return false;
     }
+
+    JOIN threads
     return true;
 }
 

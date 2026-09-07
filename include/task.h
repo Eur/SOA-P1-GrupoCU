@@ -113,7 +113,7 @@ bool task_is_eligible(task_t *task);
  *          Must be called only while the task is in TASK_RUNNING state.
  * @param  task  Pointer to the task to advance. Must not be NULL.
  */
-void task_do_work_unit(task_t *task);
+void * task_do_work_unit(void * task);
 
 /**
  * @brief This function converts task enum state into string

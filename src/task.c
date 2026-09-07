@@ -5,6 +5,8 @@
 #include "task.h"
 
 
+static pthread_cond_t state_cond  = PTHREAD_COND_INITIALIZER;
+
 task_t *task_create(void)
 {
     task_t *task = (task_t *)malloc(sizeof(task_t));
@@ -91,11 +93,32 @@ bool task_is_eligible(task_t *task)
 }
 
 
-void task_do_work_unit(task_t *task){
-    task->pi.j++; 
-    task->pi.term *= ((2.0 * task->pi.j - 1.0) * (2.0 * task->pi.j - 1.0)) / ((2.0 * task->pi.j) * (2.0 * task->pi.j + 1.0));
-    task->pi.sum += 2.0 * task->pi.term;
-    task->work_units_done++;
+void * task_do_work_unit(void * task){
+
+    task_t * current_task = (task_t*)task;
+    /*
+     * Sleeps this thread if it is in READY state.
+     * It uses a while, but this is not a busy wait
+     * because on pthread_cond_wait call, the OS
+     * sends this task to wait, and removes it from
+     * CPU 
+     */
+    while (current_task->state == TASK_READY) {
+        printf("Task is waiting\n");
+        pthread_cond_wait(&state_cond, &current_task->mutex);
+    }
+
+    if (current_task->state == TASK_RUNNING) {
+        printf("Task is running\n");
+        pthread_mutex_unlock(&current_task->mutex);
+
+        current_task->pi.j++; 
+        current_task->pi.term *= ((2.0 * current_task->pi.j - 1.0) * (2.0 * current_task->pi.j - 1.0)) / ((2.0 * current_task->pi.j) * (2.0 * current_task->pi.j + 1.0));
+        current_task->pi.sum += 2.0 * current_task->pi.term;
+        current_task->work_units_done++;
+    }
+
+    return NULL;
 }
 
 char * task_state_enum_to_str(task_state_t task_state_enum) {
