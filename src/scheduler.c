@@ -124,6 +124,14 @@ void scheduler_main_loop(struct node *task_list_head) {
             if (scheduler_all_tasks_finished(task_list_head)) {
                 break;
             }
+            /*
+             * This section is to avoid the scheduler to
+             * stuck in a situation that the cumulative tickets
+             * sum is 0 but the RUNNING task has not finished yet.
+             * Here the scheduler waits and continue, in the next
+             * iteration all tasks should be finished and will
+             * break the loop.
+             */
             task_wait_for_state_change();
             continue;
         }
