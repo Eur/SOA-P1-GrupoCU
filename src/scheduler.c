@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
 
@@ -90,6 +91,22 @@ void scheduler_main_loop(struct node *task_list_head) {
 
     bool remaining_tasks = true;
     int scheduler_sorts = 0;
+    FOR_EACH_NODE(task_list_head, node) {
+        task_worker_args_t * task = malloc(sizeof(task_worker_args_t));
+        if (task == NULL) {
+            fprintf(stderr, "Scheduler: Failed to allocate memory for task_worker_args_t\n");
+            return;
+        }
+        task->task = (task_t *)node->data;
+        task->work_units = node->work_units;
+        if (pthread_create(&task->task->thread, NULL, task_worker_fn, (void *)task) != 0) {
+            fprintf(stderr, "Scheduler: Failed to create thread for task ID %" PRIu32 "\n", node->id);
+            free(task);
+            return;
+        }
+        pthread_detach(task->task->thread); // Detach the thread to allow it to clean up after itself
+    }
+
     while (remaining_tasks) {
         uint64_t cumulative_ticket_sum = scheduler_calculate_cumulutive_tickets(task_list_head);
         uint32_t winner_ticket = scheduler_sort_winner_ticket(cumulative_ticket_sum);
@@ -116,13 +133,24 @@ void scheduler_main_loop(struct node *task_list_head) {
             scheduler_sorts,
             winner_task->id,
             winner_ticket,
-            winner_task->tickets - data_from_task->work_units_done,
+            (uint32_t)cumulative_ticket_sum,
             0,
             data_from_task->work_units_done,
             task_state_enum_to_str(data_from_task->state));
 
-        // TODO: Implement the logic to stop the current task and start the winner task.
-        remaining_tasks = false;
+            
+        task_transition_to_running(data_from_task);
+
+        pthread_mutex_lock(&data_from_task->mutex);
+        data_from_task->run_flag = true;
+        pthread_cond_signal(&data_from_task->can_run);
+        while (!data_from_task->done_flag) {
+            pthread_cond_wait(&data_from_task->done_running, &data_from_task->mutex);
+        }   
+        data_from_task->done_flag = false;
+        pthread_mutex_unlock(&data_from_task->mutex);
+        scheduler_sorts++;
+        remaining_tasks = (scheduler_calculate_cumulutive_tickets(task_list_head) > 0);
     }
 }
 

@@ -10,7 +10,13 @@ TEST_DLL_SRCS := test_dll.c ../../src/double_linked_list.c
 TEST_RNG := /tmp/test_rng
 TEST_RNG_SRCS := test_rng.c ../../src/rng.c
 
+TEST_TASK := /tmp/test_task
+TEST_TASK_SRCS := test_task.c ../../src/task.c
+
 .PHONY: all clean
+all: test_parser test_dll test_rng test_task
+
+clean: clean_test_parser clean_test_dll clean_test_rng clean_test_task
 
 ## Parser unit tests
 test_parser: $(TEST_PARSER)
@@ -35,3 +41,11 @@ $(TEST_RNG): $(TEST_RNG_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@
 clean_test_rng:
 	rm -f $(TEST_RNG)
+
+## Task unit tests
+test_task: $(TEST_TASK)
+	$(TEST_TASK)
+$(TEST_TASK): $(TEST_TASK_SRCS)
+	$(CC) $(CFLAGS) $^ -o $@
+clean_test_task:
+	rm -f $(TEST_TASK)

@@ -43,6 +43,7 @@ bool rng_xorshift32_get(uint32_t * out_random_number) {
      * Assigning the generated pseudorandom number to
      * the out parameter
      */
+    rng_seed = x; 
     *out_random_number = x;
 
     return true;

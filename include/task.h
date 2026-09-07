@@ -48,6 +48,12 @@ typedef struct {
     task_state_t state;
     pi_state_t pi;
     pthread_mutex_t mutex;
+
+    pthread_t thread;
+    pthread_cond_t can_run;      
+    pthread_cond_t done_running;   
+    bool run_flag;      
+    bool done_flag;   
 } task_t;
 
 /**
@@ -121,4 +127,43 @@ void task_do_work_unit(task_t *task);
  * @return char containing the convertion string
  */
 char * task_state_enum_to_str(task_state_t task_state_enum);
+
+
+/**
+ * @brief Allocates and initialises a new task.
+ *
+ * @details The task starts in TASK_READY state with all counters set to zero.
+ *          Initialises the mutex, can_run and done_running condition variables.
+ *          run_flag and done_flag are set to false.
+ *
+ * @return Pointer to the new task, or NULL on allocation or initialisation failure.
+ */
+task_t *task_create(void);
+
+/**
+ * @brief Arguments passed to the worker thread on creation.
+ *
+ * @details Bundles the task pointer with its total work unit count,
+ *          since work_units lives in the dll node, not in task_t.
+ *
+ * task:        pointer to the task to execute.
+ * work_units:  total number of work units assigned to this task.
+ */
+typedef struct {
+    task_t   *task;
+    uint32_t  work_units;
+} task_worker_args_t;
+
+/**
+ * @brief Entry point for the worker thread of a task.
+ *
+ * @details Loops waiting on can_run until the scheduler signals its turn.
+ *          Executes work units, then transitions to READY or FINISHED and
+ *          signals done_running. Exits when the task reaches TASK_FINISHED.
+ *
+ * @param arg  Pointer to the task_t cast as void *.
+ * @return     Always NULL.
+ */
+void *task_worker_fn(void *arg);
+
 #endif /* TASK_H */

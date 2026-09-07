@@ -24,6 +24,25 @@ task_t *task_create(void)
         free(task);
         return NULL;
     }
+
+    err = pthread_cond_init(&task->can_run, NULL);
+    if (err != 0) {
+        fprintf(stderr, "Error initializing can_run condition variable for task: %s\n", strerror(err));
+        pthread_mutex_destroy(&task->mutex);
+        free(task);
+        return NULL;
+    }   
+    err = pthread_cond_init(&task->done_running, NULL);
+    if (err != 0) {
+        fprintf(stderr, "Error initializing done_running condition variable for task: %s\n", strerror(err));
+        pthread_cond_destroy(&task->can_run);
+        pthread_mutex_destroy(&task->mutex);
+        free(task);
+        return NULL;
+    }
+    task->run_flag  = false;
+    task->done_flag = false;
+
     return task;
 }
 
@@ -33,6 +52,8 @@ void task_destroy(task_t *task)
         return;
     }
     pthread_mutex_destroy(&task->mutex);
+    pthread_cond_destroy(&task->done_running);
+    pthread_cond_destroy(&task->can_run);
     free(task);
 }
 
@@ -109,4 +130,41 @@ char * task_state_enum_to_str(task_state_t task_state_enum) {
         default:
             return "TASK_INVALID_ST";
     }
+
+}
+
+void * task_worker_fn(void *arg) {
+    task_worker_args_t *args = (task_worker_args_t *)arg;
+    task_t   *task       = args->task;
+    uint32_t  work_units = args->work_units;
+    free(args); // Free the allocated memory for args as it's no longer needed
+
+    pthread_mutex_lock(&task->mutex);
+    while (task->state != TASK_FINISHED) {
+
+        // esperar permiso del scheduler
+        while (!task->run_flag) {
+            pthread_cond_wait(&task->can_run, &task->mutex);
+        }
+        task->run_flag = false;
+        pthread_mutex_unlock(&task->mutex);
+
+        // ejecutar N unidades de trabajo (N viene de fuera — por ahora 1)
+        task_do_work_unit(task);
+
+        // decidir transición
+        if (task->work_units_done >= work_units) {
+        task_transition_to_finished(task);
+        } else {
+            task_transition_to_ready(task);
+        }
+        // notificar al scheduler
+        pthread_mutex_lock(&task->mutex);
+        task->done_flag = true;
+        pthread_cond_signal(&task->done_running);
+        // el while exterior re-evalúa task->state
+
+    }
+    pthread_mutex_unlock(&task->mutex);
+    return NULL;
 }
