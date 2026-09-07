@@ -1,3 +1,4 @@
 *.c text eol=lf
 *.h text eol=lf
+double_linked_list.h text eol=lf
 Makefile text eol=lf
