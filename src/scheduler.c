@@ -29,6 +29,15 @@ static uint64_t scheduler_calculate_cumulutive_tickets(struct node * head) {
     return cumulative_ticket_sum;
 }
 
+static bool scheduler_all_tasks_finished(struct node * head) {
+    FOR_EACH_NODE(head, current_node) {
+        if (!task_is_finished(current_node->data)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /**
  * @brief Sorts the tasks based on their tickets and selects a winner.
  *
@@ -89,16 +98,12 @@ struct node* scheduler_init(const char * tasks_metadata_path, uint32_t rng_seed)
     int task_thread_creation_result = 0;
     // Initiating the threads per task:
     FOR_EACH_NODE(task_list_head, current_task_node) {
-        task_t * task_data = current_task_node->data;
-        task_thread_creation_result = pthread_create(&threads_per_task[current_task_node->id], NULL, task_do_work_unit, (void*)task_data);
+        task_thread_creation_result = pthread_create(&threads_per_task[current_task_node->id], NULL, task_do_work_unit, (void*)current_task_node);
         if (task_thread_creation_result != 0) {
             return NULL;
         }
         number_of_tasks++;
     }
-
-
-
     return task_list_head;
 }
 
@@ -107,10 +112,33 @@ void scheduler_main_loop(struct node *task_list_head) {
 
     bool remaining_tasks = true;
     int scheduler_sorts = 0;
+
+    uint64_t cumulative_ticket_sum = 0;
+    uint32_t winner_ticket = 0;
+    struct node * winner_task = NULL;
+
     while (remaining_tasks) {
-        uint64_t cumulative_ticket_sum = scheduler_calculate_cumulutive_tickets(task_list_head);
-        uint32_t winner_ticket = scheduler_sort_winner_ticket(cumulative_ticket_sum);
-        struct node * winner_task = scheduler_winner_task(task_list_head, winner_ticket);
+        cumulative_ticket_sum = scheduler_calculate_cumulutive_tickets(task_list_head);
+
+        if (cumulative_ticket_sum == 0) {
+            if (scheduler_all_tasks_finished(task_list_head)) {
+                break;
+            }
+            task_wait_for_state_change();
+            continue;
+        }
+
+        /*
+         * Scheduler thread should wait until the worker
+         * finished before choosing another task, since
+         * only one thread could be in RUNNING:
+         */
+        while (scheduler_has_running_task(task_list_head)) {
+            task_wait_for_state_change();
+        }
+
+        winner_ticket = scheduler_sort_winner_ticket(cumulative_ticket_sum);
+        winner_task = scheduler_winner_task(task_list_head, winner_ticket);
 
         if (winner_task == NULL) {
             fprintf(stdout, "Scheduler: No eligible tasks to schedule\n");
@@ -138,21 +166,36 @@ void scheduler_main_loop(struct node *task_list_head) {
             data_from_task->work_units_done,
             task_state_enum_to_str(data_from_task->state));
 
-        // TODO: Implement the logic to stop the current task and start the winner task.
-        
+        /*
+         * Move the new winner task from READY to
+         * RUNNING:
+         */
+        task_transition_to_running(data_from_task);
 
-
-        remaining_tasks = false;
+        scheduler_sorts++;
     }
 }
 
 bool scheduler_deinit(struct node *task_list_head) {
+
+    FOR_EACH_NODE(task_list_head, current_task_node) {
+        pthread_join(threads_per_task[current_task_node->id], NULL);
+    }
+
     if (dll_clean_list(&task_list_head) == false) {
         fprintf(stderr, "Scheduler: Failed to clean up task list\n");
         return false;
     }
 
-    JOIN threads
     return true;
 }
 
+bool scheduler_has_running_task(struct node *task_list_head) {
+    FOR_EACH_NODE(task_list_head, current_task_node) {
+        task_t * task_data = (task_t *)current_task_node->data;
+        if(task_data->state == TASK_RUNNING) {
+            return true;
+        }
+    }
+    return false;
+}

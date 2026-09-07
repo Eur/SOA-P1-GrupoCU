@@ -107,13 +107,23 @@ bool task_transition_to_finished(task_t *task);
 bool task_is_eligible(task_t *task);
 
 /**
+ * @brief Returns whether a task has completed all of its work.
+ */
+bool task_is_finished(task_t *task);
+
+/**
+ * @brief Waits until a worker changes a task state.
+ */
+void task_wait_for_state_change(void);
+
+/**
  * @brief  Executes one unit of work for the given task.
  * @details Advances the arcsin(1) Taylor series by one term.
  *          Updates pi.term, pi.sum, pi.j and work_units_done.
  *          Must be called only while the task is in TASK_RUNNING state.
  * @param  task  Pointer to the task to advance. Must not be NULL.
  */
-void * task_do_work_unit(void * task);
+void * task_do_work_unit(void * task_node);
 
 /**
  * @brief This function converts task enum state into string
@@ -121,4 +131,7 @@ void * task_do_work_unit(void * task);
  * @return char containing the convertion string
  */
 char * task_state_enum_to_str(task_state_t task_state_enum);
+
+
+void task_broadcast_signal_to_wake_threads(void);
 #endif /* TASK_H */
