@@ -119,6 +119,14 @@ bool task_is_finished(task_t *task);
 void task_wait_for_state_change(void);
 
 /**
+ * @brief Waits until no task in the list is running.
+ *
+ * @details The scheduler is the only one executing this
+ * function
+ */
+void task_wait_until_no_running(struct node *task_list_head);
+
+/**
  * @brief  Executes one unit of work for the given task.
  * @details Advances the arcsin(1) Taylor series by one term.
  *          Updates pi.term, pi.sum, pi.j and work_units_done.
