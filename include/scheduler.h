@@ -48,4 +48,6 @@ void scheduler_main_loop(struct node *task_list_head);
  */
 bool scheduler_deinit(struct node *task_list_head);
 
+bool scheduler_has_running_task(struct node *task_list_head);
+
 #endif // SCHEDULER_H

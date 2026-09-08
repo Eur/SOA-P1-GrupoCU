@@ -8,7 +8,7 @@ SOURCES := src/main.c src/double_linked_list.c src/parser.c src/rng.c src/schedu
 OBJECTS := $(SOURCES:.c=.o)
 
 .PHONY: all test clean
-.PHONY: asan
+.PHONY: asan tsan
 
 all: $(TARGET)
 
@@ -37,5 +37,21 @@ $(ASAN_TARGET): $(ASAN_OBJECTS)
 src/%.asan.o: src/%.c
 	$(CC) $(ASAN_CFLAGS) -c $< -o $@
 
+
+TSAN_TARGET := lottery_scheduler_tsan
+
+TSAN_CFLAGS := $(CFLAGS) -fsanitize=thread -fno-omit-frame-pointer -g
+TSAN_OBJECTS := $(SOURCES:.c=.tsan.o)
+
+tsan: $(TSAN_TARGET)
+	TSAN_OPTIONS=log_path=./tsan_report:halt_on_error=1 ./$(TSAN_TARGET)
+
+$(TSAN_TARGET): $(TSAN_OBJECTS)
+	$(CC) $(TSAN_CFLAGS) $(TSAN_OBJECTS) -o $@
+
+src/%.tsan.o: src/%.c
+	$(CC) $(TSAN_CFLAGS) -c $< -o $@
+
 clean:
-	rm -f $(OBJECTS) $(ASAN_OBJECTS) $(TARGET) $(ASAN_TARGET)
+	rm -f $(OBJECTS) $(ASAN_OBJECTS) $(TSAN_OBJECTS) \
+		$(TARGET) $(ASAN_TARGET) $(TSAN_TARGET)

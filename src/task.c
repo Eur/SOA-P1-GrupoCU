@@ -2,8 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "task.h"
 
+#include "task.h"
+#include "double_linked_list.h"
+
+static pthread_cond_t state_cond  = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 task_t *task_create(void)
 {
@@ -39,29 +43,31 @@ void task_destroy(task_t *task)
 
 bool task_transition_to_running(task_t *task)
 {
-    pthread_mutex_lock(&task->mutex);
+    pthread_mutex_lock(&mutex);
     if (task->state != TASK_READY) {
         fprintf(stderr, "Error: task_transition_to_running called on a task that is not in TASK_READY state.\n");
-        pthread_mutex_unlock(&task->mutex);
+        pthread_mutex_unlock(&mutex);
         return false;
     }
     task->state = TASK_RUNNING;
     task->dispatches++;
-    pthread_mutex_unlock(&task->mutex);
+    pthread_cond_broadcast(&state_cond);
+    pthread_mutex_unlock(&mutex);
     return true;    
 }
 
 
 bool task_transition_to_ready(task_t *task)
 {
-    pthread_mutex_lock(&task->mutex);
+    pthread_mutex_lock(&mutex);
     if (task->state != TASK_RUNNING) {
         fprintf(stderr, "Error: task_transition_to_ready called on a task that is not in TASK_RUNNING state.\n");
-        pthread_mutex_unlock(&task->mutex);
+        pthread_mutex_unlock(&mutex);
         return false;
     }
     task->state = TASK_READY;
-    pthread_mutex_unlock(&task->mutex);
+    pthread_cond_broadcast(&state_cond);
+    pthread_mutex_unlock(&mutex);
     return true;
 }
 
@@ -69,33 +75,190 @@ bool task_transition_to_ready(task_t *task)
 bool task_transition_to_finished(task_t *task)
 {
 
-    pthread_mutex_lock(&task->mutex);
+    pthread_mutex_lock(&mutex);
     if (task->state != TASK_RUNNING) {
         fprintf(stderr, "Error: task_transition_to_finished called on a task that is not in TASK_RUNNING state.\n");
-        pthread_mutex_unlock(&task->mutex);
+        pthread_mutex_unlock(&mutex);
         return false;
     }
     task->state = TASK_FINISHED;
-    pthread_mutex_unlock(&task->mutex);
+    pthread_cond_broadcast(&state_cond);
+    pthread_mutex_unlock(&mutex);
     return true;
 }
 
 
 bool task_is_eligible(task_t *task)
 {
-    pthread_mutex_lock(&task->mutex);
+    pthread_mutex_lock(&mutex);
     bool eligible = (task->state == TASK_READY);
-    pthread_mutex_unlock(&task->mutex);
+    pthread_mutex_unlock(&mutex);
     return eligible;
 
 }
 
+bool task_is_finished(task_t *task)
+{
+    pthread_mutex_lock(&mutex);
+    bool finished = (task->state == TASK_FINISHED);
+    pthread_mutex_unlock(&mutex);
+    return finished;
+}
 
-void task_do_work_unit(task_t *task){
-    task->pi.j++; 
-    task->pi.term *= ((2.0 * task->pi.j - 1.0) * (2.0 * task->pi.j - 1.0)) / ((2.0 * task->pi.j) * (2.0 * task->pi.j + 1.0));
-    task->pi.sum += 2.0 * task->pi.term;
-    task->work_units_done++;
+void task_wait_for_state_change(void)
+{
+    pthread_mutex_lock(&mutex);
+    pthread_cond_wait(&state_cond, &mutex);
+    pthread_mutex_unlock(&mutex);
+}
+
+void task_wait_until_no_running(struct node *task_list_head)
+{
+    /*
+     * NOTE! This function is only executed by the scheduler thread.
+     * This iterates over all tasks, when it finds a RUNNING task
+     * the scheduler thread is sent to sleep and wait until that
+     * task finishes.
+     * When the RUNNING task finishes, the scheduler gets wake
+     * and will iterate over all tasks again, finding that no
+     * tasks are RUNNING, so the loop breaks and the
+     * scheduler can continue its work.
+     */
+    pthread_mutex_lock(&mutex);
+    /*
+     * This is not a busy waiting as it is explained
+     * further along this function:
+     */
+    for (;;) {
+        bool running = false;
+        FOR_EACH_NODE(task_list_head, current_task_node) {
+            task_t *task_data = (task_t *)current_task_node->data;
+            if (task_data->state == TASK_RUNNING) {
+                /*
+                 * Fine, scheduler found a RUNNING task,
+                 * lets send it to sleep and wait
+                 */
+                running = true;
+                break;
+            }
+        }
+
+        /*
+         * If the scheduler did not find any RUNNING task
+         * then we can break this main loop, so the scheduler
+         * can resume its main routin, and perform a new
+         * lottery:
+         */
+        if (!running) {
+            break;
+        }
+        /*
+         * The scheduler is sleep and waiting,
+         * also right now the scheduler has
+         * released the lock.
+         */
+        pthread_cond_wait(&state_cond, &mutex);
+
+        /*
+         * At this point the thread gets wake, so it
+         * will continue the main loop:
+         */
+    }
+
+    /*
+     * If the scheduler has just breake the loop
+     * then we need to unlock the mutex:
+     */
+    pthread_mutex_unlock(&mutex);
+}
+
+
+void * task_do_work_unit(void * task_node) {
+    /*
+     * NOTE: This is the function that all worker threads
+     * execute.
+     */
+    struct node * current_task_node = (struct node *)task_node;
+    task_t * current_task_data = (task_t*)current_task_node->data;
+    /*
+     * We need to mantain the thread alive in a loop,
+     * but this is not busy-waiting as it is explained
+     * further in this function: 
+     */
+    for (;;) {
+        /*
+         * Each worker will try to get the mutex, so
+         * the first one able to lock the mutex enters
+         * the critical region, the other workers
+         * wait:
+         */
+        pthread_mutex_lock(&mutex);
+
+        while (current_task_data->state != TASK_RUNNING &&
+               current_task_data->state != TASK_FINISHED) {
+            /*
+             * If the task is in READY, this worker is sent
+             * to wait and sleep until this task wins the
+             * lottery:
+             */ 
+            pthread_cond_wait(&state_cond, &mutex);
+        }
+
+        if (current_task_data->state == TASK_FINISHED) {
+            pthread_mutex_unlock(&mutex);
+            break;
+        }
+        
+        // If the task is in RUNNING:
+
+        /*
+         * If the task is executing it means that it
+         * was dispatched, so increment the number of
+         * dispatches.
+         */
+        current_task_data->dispatches++;
+
+        /*
+         * Unlocking the mutex here should be super safe
+         * because no other task is in RUNNING, and
+         * it is needed because the scheduler needs
+         * to hold the mutex to do operations such
+         * as iterate over the list of tasks and see
+         * if they are RUNNING or not:
+         */
+        pthread_mutex_unlock(&mutex);
+
+        /*
+         * Delete the following line when work is
+         * ready. This is evidence that the tasks are
+         * being addressed, for debug purposes:
+         */
+        printf("Task %u is running\n", current_task_node->id);
+        current_task_data->pi.j++;
+        current_task_data->pi.term *=
+            ((2.0 * current_task_data->pi.j - 1.0) *
+             (2.0 * current_task_data->pi.j - 1.0)) /
+            ((2.0 * current_task_data->pi.j) *
+             (2.0 * current_task_data->pi.j + 1.0));
+        current_task_data->pi.sum += 2.0 * current_task_data->pi.term;
+
+        current_task_data->work_units_done++;
+
+        /*
+         * Now that the worker is holding the mutex lets leverage on
+         * this time window to change the state to the corresponding
+         * one:
+         */
+        pthread_mutex_lock(&mutex);
+        if (current_task_data->work_units_done >= current_task_node->work_units) {
+            current_task_data->state = TASK_FINISHED;
+        } else {
+            current_task_data->state = TASK_READY;
+        }
+        pthread_cond_broadcast(&state_cond);
+        pthread_mutex_unlock(&mutex);
+    }
+    return NULL;
 }
 
 char * task_state_enum_to_str(task_state_t task_state_enum) {
@@ -109,4 +272,21 @@ char * task_state_enum_to_str(task_state_t task_state_enum) {
         default:
             return "TASK_INVALID_ST";
     }
+}
+
+void task_broadcast_signal_to_wake_threads(void) {
+    pthread_cond_broadcast(&state_cond);
+}
+
+bool task_is_there_any_running_task(struct node *task_list_head) {
+    pthread_mutex_lock(&mutex);
+    FOR_EACH_NODE(task_list_head, current_task_node) {
+        task_t * task_data = (task_t *)current_task_node->data;
+        if(task_data->state == TASK_RUNNING) {
+            pthread_mutex_unlock(&mutex);
+            return true;
+        }
+    }
+    pthread_mutex_unlock(&mutex);
+    return false;
 }
