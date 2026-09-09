@@ -209,14 +209,6 @@ void * task_do_work_unit(void * task_node) {
             break;
         }
         
-        // If the task is in RUNNING:
-
-        /*
-         * If the task is executing it means that it
-         * was dispatched, so increment the number of
-         * dispatches.
-         */
-        current_task_data->dispatches++;
 
         /*
          * Unlocking the mutex here should be super safe
