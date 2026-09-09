@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <math.h>
 
 #include "task.h"
 #include "parser.h"
@@ -13,11 +14,14 @@
 #define MAX_TASKS  25
 #define LINE_BUF   512
 
-/*
- * This static var holds the path received by the 
- * flag --log,-l.
- */
+static char * input_file_path;
+static char * mode;
+static uint32_t quantum = 0;
+static float slice_percent = 0.0f;
+static uint32_t seed = 0;
 static char * log_events_path;
+static char * summary_file_path;
+static uint32_t max_dispatches = 0;
 
 int parser_load(const char *filename, struct node **head)
 {
@@ -138,19 +142,130 @@ int parser_load(const char *filename, struct node **head)
         return -1;
 }
 
+static int parser_parameter_validation(void) {
+    char * input_file_path = parser_input_path_get();
+    if (input_file_path == NULL) {
+        parser_show_help_on_missing_param("--input");
+        return 1;
+    }
+
+    char * mode = parser_mode_get();
+    if (mode == NULL) {
+        parser_show_help_on_missing_param("--mode");
+        return 1;
+    }
+
+    if (strcmp(mode, "quantum") == 0) {
+        uint32_t quantum = parser_quantum_get();
+        if (!(0 < quantum && quantum < UINT32_MAX)) {
+            parser_show_help_on_missing_param("--quantum");
+            return 1;
+        }
+    } else if (strcmp(mode, "cooperative") == 0) {
+        float slice_percentage = parser_slice_percentage_get();
+        if (!(0 < slice_percentage && slice_percentage < 100)) {
+            parser_show_help_on_missing_param("--slice-percent");
+            return 1;
+        }
+    }
+
+    uint32_t seed = parser_seed_get();
+    if (!(0 < seed && seed < UINT32_MAX)) {
+        parser_show_help_on_missing_param("--seed");
+        return 1;
+    }
+
+    char * summary_file_path = parser_summary_path_get();
+    if (summary_file_path == NULL) {
+        parser_show_help_on_missing_param("--summary");
+        return 1;
+    }
+
+    // delete the unused directive when injected to the scheduler init: 
+    uint32_t max_dispatches __attribute__((unused)) = parser_max_dispatches_get();
+
+    return 0;
+}
+
 
 int parser_parameter_get(int argc, char *argv[]) {
     struct option long_options[] = {
+        {"input", required_argument, NULL, 'i'},
+        {"mode", required_argument, NULL, 'm'},
+        {"quantum", required_argument, NULL, 'q'},
+        {"slice-percent", required_argument, NULL, 'p'},
+        {"seed", required_argument, NULL, 's'},
         {"log", required_argument, NULL, 'l'},
-        /* Fill rest of the arguments here*/
+        {"summary", required_argument, NULL, 'z'},
+        {"max-dispatches", required_argument, NULL, 'd'},
         {"help", no_argument, NULL, 'h'},
-        {0    , 0                , 0    , 0}
+        {0, 0, 0, 0},
     };
+
 
     
     int option;
-    while ((option = getopt_long(argc, argv, "l:h", long_options, NULL)) != -1){
+    while ((option = getopt_long(argc, argv, "imqpslzd:h", long_options, NULL)) != -1){
         switch (option) {
+            case 'i':
+                input_file_path = optarg;
+                break;
+            case 'm':
+                mode = optarg;
+                break;
+            case 'q':
+                {
+                    char *endptr;
+                    unsigned long parsed_quantum;
+
+                    errno = 0;
+                    parsed_quantum = strtoul(optarg, &endptr, 10);
+                    if (errno != 0 || *optarg == '\0' || *endptr != '\0' ||
+                        parsed_quantum > UINT32_MAX || parsed_quantum == 0) {
+                        fprintf(stderr, "Invalid quantum: '%s'\n", optarg);
+                        parser_show_help_on_missing_param("--quantum");
+                        return 1;
+                    }
+
+                    quantum = (uint32_t)parsed_quantum;
+                }
+                break;
+            case 'p':
+                {
+                    char *endptr;
+                    float parsed_slice_percent;
+
+                    errno = 0;
+                    parsed_slice_percent = strtof(optarg, &endptr);
+                    if (errno != 0 || *optarg == '\0' || *endptr != '\0' ||
+                        !isfinite(parsed_slice_percent) ||
+                        parsed_slice_percent <= 0.0f ||
+                        parsed_slice_percent > 100.0f) {
+                        fprintf(stderr, "Invalid slice percentage: '%s'\n", optarg);
+                        parser_show_help_on_missing_param("--slice-percent");
+                        return 1;
+                    }
+
+                    slice_percent = parsed_slice_percent;
+                }
+                break;
+            case 's':
+                {
+                    char *endptr;
+                    unsigned long parsed_seed;
+
+                    errno = 0;
+                    parsed_seed = strtoul(optarg, &endptr, 10);
+                    if (errno != 0 || *optarg == '\0' || *endptr != '\0' ||
+                        parsed_seed > UINT32_MAX || parsed_seed == 0) {
+                        fprintf(stderr, "Invalid seed: '%s'\n", optarg);
+                        parser_show_help_on_missing_param("--seed");
+                        return 1;
+                    }
+
+                    seed = (uint32_t)parsed_seed;
+                }
+                break;
             case 'l':
                 /*
                  * This won't crash and it is valid because optarg
@@ -159,19 +274,100 @@ int parser_parameter_get(int argc, char *argv[]) {
                  */
                 log_events_path = optarg;
                 break;
+
+            case 'z':
+                summary_file_path = optarg;
+                break;
+            case 'd':
+                {
+                    char *endptr;
+                    unsigned long parsed_max_dispatches;
+
+                    errno = 0;
+                    parsed_max_dispatches = strtoul(optarg, &endptr, 10);
+                    if (errno != 0 || *optarg == '\0' || *endptr != '\0' ||
+                        parsed_max_dispatches > UINT32_MAX || parsed_max_dispatches == 0) {
+                        fprintf(stderr, "Invalid parsed max dispatches: '%s'\n", optarg);
+                        parser_show_help_on_missing_param("--max-dispatches");
+                        return 1;
+                    }
+
+                    max_dispatches = (uint32_t)parsed_max_dispatches;
+                }
+                break;
             case 'h':
-                fprintf(stderr, "Parameter parser: see documentation to use this program\n");
+                parser_show_help_on_missing_param(NULL);
                 return 0;
             case '?':
                 return 1;
             default:
                 break;
         }
+        
     }
-    return 0;
+    return parser_parameter_validation();
 }
 
 
+
+char * parser_input_path_get(void) {
+    return input_file_path;
+}
+
+char * parser_mode_get(void) {
+    return mode;
+}
+
+uint32_t parser_quantum_get(void) {
+    return quantum;
+}
+
+float parser_slice_percentage_get(void) {
+    return slice_percent;
+}
+
+uint32_t parser_seed_get(void) {
+    return seed;
+}
+
 char * parser_log_path_get(void) {
     return log_events_path;
+}
+
+char * parser_summary_path_get(void) {
+    return summary_file_path;
+}
+
+uint32_t parser_max_dispatches_get(void) {
+    return max_dispatches;
+}
+
+void parser_show_help_on_missing_param(char * missing_parameter) {
+
+    if (missing_parameter != NULL) {
+        printf("\033[31mMissing parameter: %s\033[0m\n\n", missing_parameter);
+    }
+
+    static const char help_buffer[] =
+        "Usage: ./lottery_scheduler [OPTIONS]\n"
+        "\n"
+        "Run the lottery scheduler with tasks loaded from a CSV file.\n"
+        "\n"
+        "Options:\n"
+        "  -i, --input FILE          CSV file containing the tasks to schedule.\n"
+        "  -m, --mode MODE           Scheduling mode (for example: quantum).\n"
+        "  -q, --quantum UNITS       Number of work units in each quantum.\n"
+        "  -p, --slice-percent PCT   Percentage of work used for each time slice.\n"
+        "  -s, --seed VALUE          Seed used by the pseudo-random lottery.\n"
+        "  -l, --log FILE            File where scheduler events are written.\n"
+        "  -z, --summary FILE        File where the execution summary is written.\n"
+        "  -d, --max-dispatches N    Maximum number of scheduler dispatches.\n"
+        "  -h, --help                Show this help message.\n"
+        "\n"
+        "The input CSV must contain task_id, tickets, and work_units columns.\n"
+        "\n"
+        "Example:\n"
+        "  ./lottery_scheduler --input tests/base.csv --mode quantum --quantum 1000 --seed 2026 --log results/base_events.csv --summary results/base_summary.csv\n";
+
+    fputs(help_buffer, stdout);
 }

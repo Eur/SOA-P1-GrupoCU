@@ -233,7 +233,7 @@ void * task_do_work_unit(void * task_node) {
          * ready. This is evidence that the tasks are
          * being addressed, for debug purposes:
          */
-        printf("Task %u is running\n", current_task_node->id);
+        //printf("Task %u is running\n", current_task_node->id);
         current_task_data->pi.j++;
         current_task_data->pi.term *=
             ((2.0 * current_task_data->pi.j - 1.0) *

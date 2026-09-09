@@ -148,6 +148,7 @@ void scheduler_main_loop(struct node *task_list_head) {
          */
         if (scheduler_all_tasks_finished(task_list_head)) {
             remaining_tasks = false;
+            continue;
         }
 
         /*
