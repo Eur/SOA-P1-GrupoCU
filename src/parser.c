@@ -6,6 +6,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <math.h>
+#include <sys/stat.h>
 
 #include "task.h"
 #include "parser.h"
@@ -22,6 +23,91 @@ static uint32_t seed = 0;
 static char * log_events_path;
 static char * summary_file_path;
 static uint32_t max_dispatches = 0;
+
+static int parser_parse_uint32(const char *value, uint32_t *result)
+{
+    char *endptr;
+    unsigned long parsed_value;
+
+    errno = 0;
+    parsed_value = strtoul(value, &endptr, 10);
+    if (errno != 0 || *value == '\0' || *endptr != '\0' ||
+        parsed_value == 0 || parsed_value > UINT32_MAX) {
+        return 1;
+    }
+
+    *result = (uint32_t)parsed_value;
+    return 0;
+}
+
+static int parser_parse_percentage(const char *value, float *result)
+{
+    char *endptr;
+    float parsed_value;
+
+    errno = 0;
+    parsed_value = strtof(value, &endptr);
+    if (errno != 0 || *value == '\0' || *endptr != '\0' ||
+        !isfinite(parsed_value) || parsed_value <= 0.0f ||
+        parsed_value > 100.0f) {
+        return 1;
+    }
+
+    *result = parsed_value;
+    return 0;
+}
+
+static int parser_is_valid_mode(const char *value)
+{
+    return strcmp(value, "quantum") == 0 || strcmp(value, "cooperative") == 0;
+}
+
+static int parser_is_valid_path_string(const char *path)
+{
+    if (path == NULL || *path == '\0') {
+        return 0;
+    }
+
+    for (const unsigned char *character = (const unsigned char *)path;
+         *character != '\0'; character++) {
+        if (*character < 32) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+static int parser_is_existing_input_file(const char *path)
+{
+    struct stat path_info;
+
+    return parser_is_valid_path_string(path) &&
+           stat(path, &path_info) == 0 && S_ISREG(path_info.st_mode);
+}
+
+static int parser_has_existing_parent_directory(const char *path)
+{
+    char *last_separator;
+    char parent_path[LINE_BUF];
+    struct stat path_info;
+
+    if (!parser_is_valid_path_string(path) || strlen(path) >= sizeof(parent_path)) {
+        return 0;
+    }
+
+    strcpy(parent_path, path);
+    last_separator = strrchr(parent_path, '/');
+    if (last_separator == NULL) {
+        strcpy(parent_path, ".");
+    } else if (last_separator == parent_path) {
+        last_separator[1] = '\0';
+    } else {
+        *last_separator = '\0';
+    }
+
+    return stat(parent_path, &path_info) == 0 && S_ISDIR(path_info.st_mode);
+}
 
 int parser_load(const char *filename, struct node **head)
 {
@@ -143,46 +229,43 @@ int parser_load(const char *filename, struct node **head)
 }
 
 static int parser_parameter_validation(void) {
-    char * input_file_path = parser_input_path_get();
-    if (input_file_path == NULL) {
+    if (!parser_is_existing_input_file(input_file_path)) {
         parser_show_help_on_missing_param("--input");
         return 1;
     }
 
-    char * mode = parser_mode_get();
-    if (mode == NULL) {
+    if (mode == NULL || !parser_is_valid_mode(mode)) {
         parser_show_help_on_missing_param("--mode");
         return 1;
     }
 
     if (strcmp(mode, "quantum") == 0) {
-        uint32_t quantum = parser_quantum_get();
-        if (!(0 < quantum && quantum < UINT32_MAX)) {
+        if (quantum == 0) {
             parser_show_help_on_missing_param("--quantum");
             return 1;
         }
     } else if (strcmp(mode, "cooperative") == 0) {
-        float slice_percentage = parser_slice_percentage_get();
-        if (!(0 < slice_percentage && slice_percentage < 100)) {
+        if (!(slice_percent > 0.0f && slice_percent <= 100.0f)) {
             parser_show_help_on_missing_param("--slice-percent");
             return 1;
         }
     }
 
-    uint32_t seed = parser_seed_get();
-    if (!(0 < seed && seed < UINT32_MAX)) {
+    if (seed == 0) {
         parser_show_help_on_missing_param("--seed");
         return 1;
     }
 
-    char * summary_file_path = parser_summary_path_get();
-    if (summary_file_path == NULL) {
+    if (!parser_has_existing_parent_directory(summary_file_path)) {
         parser_show_help_on_missing_param("--summary");
         return 1;
     }
 
-    // delete the unused directive when injected to the scheduler init: 
-    uint32_t max_dispatches __attribute__((unused)) = parser_max_dispatches_get();
+    if (log_events_path != NULL &&
+        !parser_has_existing_parent_directory(log_events_path)) {
+        parser_show_help_on_missing_param("--log");
+        return 1;
+    }
 
     return 0;
 }
@@ -214,56 +297,24 @@ int parser_parameter_get(int argc, char *argv[]) {
                 mode = optarg;
                 break;
             case 'q':
-                {
-                    char *endptr;
-                    unsigned long parsed_quantum;
-
-                    errno = 0;
-                    parsed_quantum = strtoul(optarg, &endptr, 10);
-                    if (errno != 0 || *optarg == '\0' || *endptr != '\0' ||
-                        parsed_quantum > UINT32_MAX || parsed_quantum == 0) {
+                if (parser_parse_uint32(optarg, &quantum) != 0) {
                         fprintf(stderr, "Invalid quantum: '%s'\n", optarg);
                         parser_show_help_on_missing_param("--quantum");
                         return 1;
-                    }
-
-                    quantum = (uint32_t)parsed_quantum;
                 }
                 break;
             case 'p':
-                {
-                    char *endptr;
-                    float parsed_slice_percent;
-
-                    errno = 0;
-                    parsed_slice_percent = strtof(optarg, &endptr);
-                    if (errno != 0 || *optarg == '\0' || *endptr != '\0' ||
-                        !isfinite(parsed_slice_percent) ||
-                        parsed_slice_percent <= 0.0f ||
-                        parsed_slice_percent > 100.0f) {
+                if (parser_parse_percentage(optarg, &slice_percent) != 0) {
                         fprintf(stderr, "Invalid slice percentage: '%s'\n", optarg);
                         parser_show_help_on_missing_param("--slice-percent");
                         return 1;
-                    }
-
-                    slice_percent = parsed_slice_percent;
                 }
                 break;
             case 's':
-                {
-                    char *endptr;
-                    unsigned long parsed_seed;
-
-                    errno = 0;
-                    parsed_seed = strtoul(optarg, &endptr, 10);
-                    if (errno != 0 || *optarg == '\0' || *endptr != '\0' ||
-                        parsed_seed > UINT32_MAX || parsed_seed == 0) {
+                if (parser_parse_uint32(optarg, &seed) != 0) {
                         fprintf(stderr, "Invalid seed: '%s'\n", optarg);
                         parser_show_help_on_missing_param("--seed");
                         return 1;
-                    }
-
-                    seed = (uint32_t)parsed_seed;
                 }
                 break;
             case 'l':
@@ -279,20 +330,10 @@ int parser_parameter_get(int argc, char *argv[]) {
                 summary_file_path = optarg;
                 break;
             case 'd':
-                {
-                    char *endptr;
-                    unsigned long parsed_max_dispatches;
-
-                    errno = 0;
-                    parsed_max_dispatches = strtoul(optarg, &endptr, 10);
-                    if (errno != 0 || *optarg == '\0' || *endptr != '\0' ||
-                        parsed_max_dispatches > UINT32_MAX || parsed_max_dispatches == 0) {
-                        fprintf(stderr, "Invalid parsed max dispatches: '%s'\n", optarg);
+                if (parser_parse_uint32(optarg, &max_dispatches) != 0) {
+                        fprintf(stderr, "Invalid max dispatches: '%s'\n", optarg);
                         parser_show_help_on_missing_param("--max-dispatches");
                         return 1;
-                    }
-
-                    max_dispatches = (uint32_t)parsed_max_dispatches;
                 }
                 break;
             case 'h':
