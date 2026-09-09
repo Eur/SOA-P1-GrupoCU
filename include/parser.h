@@ -49,9 +49,57 @@ int parser_load(const char *filename, struct node **head);
 int parser_parameter_get(int argc, char *argv[]);
 
 /**
+ * @brief Prints the command-line usage and option descriptions.
+ */
+void parser_show_help_on_missing_param(char * missing_parameter);
+
+/**
  * @brief Get the event logs path
  * @return a char with the path
  */
 char * parser_log_path_get(void);
+
+
+/**
+ * @brief Get mode
+ * @return a char with the mode
+ */
+char * parser_mode_get(void);
+
+/**
+ * @brief Get quantum
+ * @return a uint32_t with the quantum
+ */
+uint32_t parser_quantum_get(void);
+
+/**
+ * @brief Get slice percentage
+ * @return a float with the slice percentage
+ */
+float parser_slice_percentage_get(void);
+
+/**
+ * @brief Get seed
+ * @return a uint32_t with the seed
+ */
+uint32_t parser_seed_get(void);
+
+/**
+ * @brief Get summary file path
+ * @return a string with the summary file path
+ */
+char * parser_summary_path_get(void);
+
+/**
+ * @brief Get max_dispatches
+ * @return a uint32_t with the max_dispatches
+ */
+uint32_t parser_max_dispatches_get(void);
+
+/**
+ * @brief Get the input file path
+ * @return a char with the path
+ */
+char * parser_input_path_get(void);
 
 #endif /* PARSER_H */
