@@ -9,13 +9,18 @@
 static pthread_cond_t state_cond  = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-task_t *task_create(void)
+task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
 {
-    task_t *task = (task_t *)malloc(sizeof(task_t));
+     task_t *task = (task_t *)malloc(sizeof(task_t));
     if (task == NULL) {
         fprintf(stderr, "Error allocating memory for task: %s\n", strerror(errno));
         return NULL;
     }
+    task->id             = id;
+    task->tickets        = tickets;
+    task->work_units     = work_units;
+    task->first_dispatch = 0;
+    task->last_dispatch  = 0;
     task->work_units_done = 0;
     task->dispatches = 0;
     task->state = TASK_READY;
@@ -51,6 +56,10 @@ bool task_transition_to_running(task_t *task)
     }
     task->state = TASK_RUNNING;
     task->dispatches++;
+    time_t now = time(NULL);
+    if (task->dispatches == 1)
+        task->first_dispatch = now;
+    task->last_dispatch = now;
     pthread_cond_broadcast(&state_cond);
     pthread_mutex_unlock(&mutex);
     return true;    

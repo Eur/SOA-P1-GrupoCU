@@ -1,6 +1,6 @@
 #ifndef TASK_H
 #define TASK_H
-
+#include <time.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <pthread.h>
@@ -45,6 +45,11 @@ typedef struct {
  * mutex: protects all fields in this struct.
  */
 typedef struct {
+    uint32_t id;
+    uint32_t tickets;
+    uint32_t work_units;
+    time_t   first_dispatch;
+    time_t   last_dispatch;
     uint32_t work_units_done;
     uint32_t dispatches;
     task_state_t state;
@@ -59,7 +64,7 @@ typedef struct {
  *
  * @return Pointer to the new task, or NULL on allocation failure.
  */
-task_t *task_create(void);
+task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units);
 
 /**
  * @brief Destroys a task by destroying its mutex and freeing the memory.
