@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <inttypes.h>
 
 #include "task.h"
 #include "double_linked_list.h"
@@ -11,7 +13,7 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
 {
-     task_t *task = (task_t *)malloc(sizeof(task_t));
+    task_t *task = (task_t *)malloc(sizeof(task_t));
     if (task == NULL) {
         fprintf(stderr, "Error allocating memory for task: %s\n", strerror(errno));
         return NULL;
@@ -241,6 +243,12 @@ void * task_do_work_unit(void * task_node) {
              (2.0 * current_task_data->pi.j - 1.0)) /
             ((2.0 * current_task_data->pi.j) *
              (2.0 * current_task_data->pi.j + 1.0));
+        if (!isfinite(current_task_data->pi.term) ||
+            !isfinite(current_task_data->pi.sum)) {
+            fprintf(stderr, "Task %u: floating point overflow in pi computation at j=%" PRIu64 "\n",
+                    current_task_data->id, current_task_data->pi.j);
+            break;
+        }
         current_task_data->pi.sum += 2.0 * current_task_data->pi.term;
 
         current_task_data->work_units_done++;
