@@ -84,6 +84,20 @@ static bool logger_fill_events_log_file_path(const char * custom_events_log_file
 }
 
 
+static bool logger_fill_summary_log_file_path(const char *custom_summary_log_file_path) {
+    int result = -1;
+    if(custom_summary_log_file_path == NULL){
+        char tod[TOD_BUFF_SIZE];
+        if(!logger_tod_to_human_read_str(tod, true)){
+            return false;
+        }
+        result = snprintf(summary_log_file_path, sizeof(summary_log_file_path),
+                          LOG_SUMMARY_DEFAULT_PATH, tod);
+    } else {
+        result = snprintf(summary_log_file_path, sizeof(summary_log_file_path), "%s", custom_summary_log_file_path);
+    }
+    return result > 0;
+}
 
 bool logger_init_structure(const char *custom_events_log_file_path, const char * custom_summary_log_file_path) {
 
@@ -142,20 +156,6 @@ void logger_log_msg(FILE * file, const char * format, ...) {
     fflush(file);
 }
 
-static bool logger_fill_summary_log_file_path(const char *custom_summary_log_file_path) {
-    int result = -1;
-    if(custom_summary_log_file_path == NULL){
-        char tod[TOD_BUFF_SIZE];
-        if(!logger_tod_to_human_read_str(tod, true)){
-            return false;
-        }
-        result = snprintf(summary_log_file_path, sizeof(summary_log_file_path),
-                          LOG_SUMMARY_DEFAULT_PATH, tod);
-    } else {
-        result = snprintf(summary_log_file_path, sizeof(summary_log_file_path), "%s", custom_summary_log_file_path);
-    }
-    return result > 0;
-}
 
 bool logger_write_summary(task_t **tasks, uint32_t count) {
 

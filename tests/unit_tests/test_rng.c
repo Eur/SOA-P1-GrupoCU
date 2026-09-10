@@ -41,7 +41,8 @@ TEST(test_rng_multiple_gets) {
     ASSERT(rng_xorshift32_get(&random_number2) == true, "getting second random number should succeed");
 
     // Ensure that the two random numbers are different
-    ASSERT(random_number1 == random_number2, "two consecutive random numbers with the same seed should be the same in XORShift32 algorithm");
+    ASSERT(random_number1 != random_number2,
+        "two consecutive random numbers should differ");
 
     return 0;
 }
