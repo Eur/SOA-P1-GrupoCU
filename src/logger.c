@@ -132,7 +132,12 @@ FILE * logger_log_tod(bool eventlog) {
         return NULL;
     }
 
-    FILE *log_file = fopen(eventlog ? events_log_file_path : summary_log_file_path, "a");
+    
+    static bool events_initialized = false;
+    const char *mode = (eventlog && !events_initialized) ? "w" : "a";
+    if (eventlog) events_initialized = true;
+
+    FILE *log_file = fopen(eventlog ? events_log_file_path : summary_log_file_path, mode);
     fprintf(log_file, "[%s]", time_of_day_buffer);
     fflush(log_file);
 

@@ -11,7 +11,7 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
 {
-     task_t *task = (task_t *)malloc(sizeof(task_t));
+    task_t *task = (task_t *)malloc(sizeof(task_t));
     if (task == NULL) {
         fprintf(stderr, "Error allocating memory for task: %s\n", strerror(errno));
         return NULL;
@@ -23,6 +23,7 @@ task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
     task->last_dispatch  = 0;
     task->work_units_done = 0;
     task->dispatches = 0;
+    task->slice_size = 1; // Default slice size
     task->state = TASK_READY;
     task->pi.sum = 2.0;
     task->pi.term = 1.0;
@@ -181,6 +182,9 @@ void task_wait_until_no_running(struct node *task_list_head)
     pthread_mutex_unlock(&mutex);
 }
 
+void task_set_slice(task_t *task, uint32_t slice_size) {
+    task -> slice_size = (slice_size >=1) ? slice_size : 1;
+}
 
 void * task_do_work_unit(void * task_node) {
     /*
@@ -229,21 +233,19 @@ void * task_do_work_unit(void * task_node) {
          */
         pthread_mutex_unlock(&mutex);
 
-        /*
-         * Delete the following line when work is
-         * ready. This is evidence that the tasks are
-         * being addressed, for debug purposes:
-         */
-        printf("Task %u is running\n", current_task_node->id);
-        current_task_data->pi.j++;
-        current_task_data->pi.term *=
-            ((2.0 * current_task_data->pi.j - 1.0) *
-             (2.0 * current_task_data->pi.j - 1.0)) /
-            ((2.0 * current_task_data->pi.j) *
-             (2.0 * current_task_data->pi.j + 1.0));
-        current_task_data->pi.sum += 2.0 * current_task_data->pi.term;
-
-        current_task_data->work_units_done++;
+        uint32_t units_run = 0;
+        while (units_run < current_task_data->slice_size &&
+               current_task_data->work_units_done < current_task_node->work_units) {
+            current_task_data->pi.j++;
+            current_task_data->pi.term *=
+                ((2.0 * (double)current_task_data->pi.j - 1.0) *
+                 (2.0 * (double)current_task_data->pi.j - 1.0)) /
+                ((2.0 * (double)current_task_data->pi.j) *
+                 (2.0 * (double)current_task_data->pi.j + 1.0));
+            current_task_data->pi.sum += 2.0 * current_task_data->pi.term;
+            current_task_data->work_units_done++;
+            units_run++;
+        }
 
         /*
          * Now that the worker is holding the mutex lets leverage on

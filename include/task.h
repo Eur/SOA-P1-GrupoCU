@@ -52,6 +52,7 @@ typedef struct {
     time_t   last_dispatch;
     uint32_t work_units_done;
     uint32_t dispatches;
+    uint32_t slice_size;
     task_state_t state;
     pi_state_t pi;
     pthread_mutex_t mutex;
@@ -72,6 +73,17 @@ task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units);
  * @param task: task to destroy. No-op if NULL.
  */
 void task_destroy(task_t *task);
+
+/**
+ * @brief Sets the number of work units to execute per activation.
+ *
+ * @details Must be called after scheduler_init and before scheduler_main_loop.
+ *          Not thread-safe: no worker may be RUNNING when this is called.
+ *
+ * @param task   Target task. Must not be NULL.
+ * @param units  Units per activation; clamped to minimum 1.
+ */
+void task_set_slice(task_t *task, uint32_t units);
 
 /**
  * @brief Transitions a task from TASK_READY to TASK_RUNNING.

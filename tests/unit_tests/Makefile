@@ -15,6 +15,11 @@ TEST_SUMMARY_SRCS := test_summary.c \
                      ../../src/task.c \
                      ../../src/double_linked_list.c \
                      ../../src/logger.c
+
+TEST_COOPERATIVE := /tmp/test_cooperative
+TEST_COOPERATIVE_SRCS := test_cooperative.c \
+                         ../../src/task.c
+
 .PHONY: all clean
 
 ## Parser unit tests
@@ -48,3 +53,11 @@ $(TEST_SUMMARY): $(TEST_SUMMARY_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 clean_test_summary:
 	rm -f $(TEST_SUMMARY)
+
+	
+test_cooperative: $(TEST_COOPERATIVE)
+	$(TEST_COOPERATIVE)
+$(TEST_COOPERATIVE): $(TEST_COOPERATIVE_SRCS)
+	$(CC) $(CFLAGS) $^ -o $@ -lm
+clean_test_cooperative:
+	rm -f $(TEST_COOPERATIVE)

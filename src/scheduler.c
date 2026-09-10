@@ -118,9 +118,19 @@ struct node* scheduler_init(const char * tasks_metadata_path, uint32_t rng_seed)
     return task_list_head;
 }
 
+void scheduler_configure_cooperative(struct node *task_list_head, uint32_t percent) {
+    
+    FOR_EACH_NODE(task_list_head, current_node) {
+        task_t *t = (task_t *)current_node->data;
+        uint64_t raw = ((uint64_t)t->work_units * percent + 99) / 100;
+        uint32_t slice = (raw >= 1) ? (uint32_t)raw : 1;
+        task_set_slice(t, slice);
+    }
+}
+
 
 void scheduler_main_loop(struct node *task_list_head) {
-    int scheduler_sorts = 0;
+    uint32_t global_dispatch = 1;
 
     bool remaining_tasks = true;
 
@@ -193,20 +203,7 @@ void scheduler_main_loop(struct node *task_list_head) {
 
         task_t * data_from_task = (task_t *)winner_task->data;
 
-        /*
-         * Log the sorted task, before sending it to RUNNING
-         */
-        LOG_EVENT(
-            "[Lottery Sort] dispatch=%d, winner_id=%" PRIu32
-            ", winning_ticket=%" PRIu32 ", active_tickets=%" PRIu32
-            ", run_units=%d, completed_units=%" PRIu32 ", state=%s",
-            data_from_task->dispatches,
-            winner_task->id,
-            winner_ticket,
-            winner_task->tickets - data_from_task->work_units_done,
-            0,
-            data_from_task->work_units_done,
-            task_state_enum_to_str(data_from_task->state));
+       
 
         /*
          * Move the new winner task from READY to
@@ -220,9 +217,23 @@ void scheduler_main_loop(struct node *task_list_head) {
          * at the begining of this loop where this
          * thread is set to wait.
          */
+        uint32_t units_before = data_from_task->work_units_done;
         task_transition_to_running(data_from_task);
+        
+        scheduler_main_thread_waits_until_no_running_workers(task_list_head);
 
-        scheduler_sorts++;
+        LOG_EVENT(
+            "dispatch=%" PRIu32 ", winner_id=%" PRIu32
+            ", winning_ticket=%" PRIu32 ", active_tickets=%" PRIu64
+            ", run_units=%" PRIu32 ", completed_units=%" PRIu32 ", state_after=%s",
+            global_dispatch,
+            winner_task->id,
+            winner_ticket,
+            cumulative_ticket_sum,
+            data_from_task->work_units_done - units_before,
+            data_from_task->work_units_done,
+            task_state_enum_to_str(data_from_task->state));
+        global_dispatch++;
     }
 }
 

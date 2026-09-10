@@ -14,6 +14,17 @@
  * NULL otherwise.
  */
 struct node* scheduler_init(const char * tasks_metadata_path, uint32_t rng_seed);
+/**
+ * @brief Configures cooperative mode (--slice-percent P).
+ *
+ * @details For each task computes slice = max(1, ceil(work_units * percent / 100))
+ *          and calls task_set_slice. Must be called before scheduler_main_loop.
+ *
+ * @param task_list_head  List returned by scheduler_init.
+ * @param percent         Value of P from --slice-percent.
+ */
+void scheduler_configure_cooperative(struct node *task_list_head, uint32_t percent);
+
 
 /**
  * @brief Runs the scheduler.
