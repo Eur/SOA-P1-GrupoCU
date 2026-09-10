@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <inttypes.h>
 
 #include "task.h"
 #include "double_linked_list.h"
@@ -242,6 +244,12 @@ void * task_do_work_unit(void * task_node) {
                  (2.0 * (double)current_task_data->pi.j - 1.0)) /
                 ((2.0 * (double)current_task_data->pi.j) *
                  (2.0 * (double)current_task_data->pi.j + 1.0));
+            if (!isfinite(current_task_data->pi.term) ||
+                !isfinite(current_task_data->pi.sum)) {
+                fprintf(stderr, "Task %u: floating point overflow in pi computation at j=%" PRIu64 "\n",
+                        current_task_data->id, current_task_data->pi.j);
+                break;
+            }
             current_task_data->pi.sum += 2.0 * current_task_data->pi.term;
             current_task_data->work_units_done++;
             units_run++;

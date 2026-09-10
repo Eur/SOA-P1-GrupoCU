@@ -77,5 +77,11 @@ void logger_log_msg(FILE * file, const char * format, ...);
  * @param count  Number of tasks.
  * @return true on success, false on I/O error.
  */
+/**
+ * Public macro to write the summary CSV.
+ * Mirrors LOG_EVENT for API consistency.
+ */
+#define LOG_SUMMARY(tasks, count) logger_write_summary(tasks, count)
+
 bool logger_write_summary(task_t **tasks, uint32_t count);
 #endif /* LOGGER_H */

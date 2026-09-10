@@ -164,7 +164,7 @@ void logger_log_msg(FILE * file, const char * format, ...) {
 
 bool logger_write_summary(task_t **tasks, uint32_t count) {
 
-    if (tasks == NULL || count == 0) {
+    if (tasks == NULL || *tasks == NULL || count == 0) {
         return false;
     }
 
@@ -192,7 +192,7 @@ bool logger_write_summary(task_t **tasks, uint32_t count) {
         double pi_approx = 2.0 * task->pi.sum;
 
         double observed_share = (total_done > 0)
-            ? (double)task->work_units_done / (double)total_done
+            ? (double)task->work_units_done / total_done
             : 0.0;
 
         char first_ts[TOD_BUFF_SIZE] = "N/A";
