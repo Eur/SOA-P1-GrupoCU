@@ -10,6 +10,11 @@ TEST_DLL_SRCS := test_dll.c ../../src/double_linked_list.c
 TEST_RNG := /tmp/test_rng
 TEST_RNG_SRCS := test_rng.c ../../src/rng.c
 
+TEST_SUMMARY := /tmp/test_summary
+TEST_SUMMARY_SRCS := test_summary.c \
+                     ../../src/task.c \
+                     ../../src/double_linked_list.c \
+                     ../../src/logger.c
 .PHONY: all clean
 
 ## Parser unit tests
@@ -35,3 +40,11 @@ $(TEST_RNG): $(TEST_RNG_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@
 clean_test_rng:
 	rm -f $(TEST_RNG)
+
+
+test_summary: $(TEST_SUMMARY)
+	$(TEST_SUMMARY)
+$(TEST_SUMMARY): $(TEST_SUMMARY_SRCS)
+	$(CC) $(CFLAGS) $^ -o $@ -lm
+clean_test_summary:
+	rm -f $(TEST_SUMMARY)

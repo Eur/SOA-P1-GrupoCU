@@ -22,6 +22,14 @@ static void write_csv(const char *path, const char *content)
     fclose(f);
 }
 
+static void advance_pi(task_t *t)
+{
+    t->pi.j++;
+    t->pi.term *= ((2.0 * t->pi.j - 1.0) * (2.0 * t->pi.j - 1.0)) /
+                  ((2.0 * t->pi.j)        * (2.0 * t->pi.j + 1.0));
+    t->pi.sum  += 2.0 * t->pi.term;
+}
+
 /* ── Parser tests ───────────────────────────────────────────── */
 
 TEST(test_entrada_valida_cinco_tareas)
@@ -227,7 +235,7 @@ TEST(test_desbordamiento_total_tickets)
 
 TEST(test_task_create_estado_inicial)
 {
-    task_t *task = task_create();
+    task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     ASSERT(task->state           == TASK_READY, "estado inicial debe ser TASK_READY");
     ASSERT(task->dispatches      == 0,          "dispatches debe iniciar en 0");
@@ -239,7 +247,7 @@ TEST(test_task_create_estado_inicial)
 
 TEST(test_task_ready_to_running)
 {
-    task_t *task = task_create();
+    task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     ASSERT(task_transition_to_running(task) == true, "READY -> RUNNING debe ser exitoso");
     ASSERT(task->state      == TASK_RUNNING, "estado debe ser TASK_RUNNING");
@@ -250,7 +258,7 @@ TEST(test_task_ready_to_running)
 
 TEST(test_task_running_to_ready)
 {
-    task_t *task = task_create();
+    task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     task_transition_to_running(task);
     ASSERT(task_transition_to_ready(task) == true, "RUNNING -> READY debe ser exitoso");
@@ -261,7 +269,7 @@ TEST(test_task_running_to_ready)
 
 TEST(test_task_running_to_finished)
 {
-    task_t *task = task_create();
+    task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     task_transition_to_running(task);
     ASSERT(task_transition_to_finished(task) == true, "RUNNING -> FINISHED debe ser exitoso");
@@ -272,7 +280,7 @@ TEST(test_task_running_to_finished)
 
 TEST(test_task_finished_es_terminal)
 {
-    task_t *task = task_create();
+    task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     task_transition_to_running(task);
     task_transition_to_finished(task);
@@ -285,7 +293,7 @@ TEST(test_task_finished_es_terminal)
 
 TEST(test_task_is_eligible)
 {
-    task_t *task = task_create();
+    task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     ASSERT(task_is_eligible(task) == true, "tarea READY debe ser elegible");
     task_transition_to_running(task);
@@ -298,7 +306,7 @@ TEST(test_task_is_eligible)
 
 TEST(test_task_dispatches_acumulan)
 {
-    task_t *task = task_create();
+    task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     task_transition_to_running(task);
     task_transition_to_ready(task);
@@ -312,17 +320,19 @@ TEST(test_task_dispatches_acumulan)
 
 TEST(test_pi_determinism)
 {
-    task_t *a = task_create();
-    task_t *b = task_create();
+    task_t *a = task_create(0, 1, 1);
+    task_t *b = task_create(0, 1, 1);
     ASSERT(a != NULL && b != NULL, "task_create debe retornar punteros validos");
 
     for (uint32_t i = 0; i < 1000; i++) {
-        task_do_work_unit(a);
-        task_do_work_unit(b);
+        advance_pi(a);
+        advance_pi(b);
     }
 
-    ASSERT(a->pi.sum == b->pi.sum, "dos tareas con mismas iteraciones deben tener igual pi.sum");
-    ASSERT(a->pi.j   == b->pi.j,   "dos tareas con mismas iteraciones deben tener igual pi.j");
+    ASSERT(a->pi.sum == b->pi.sum,
+           "dos tareas con mismas iteraciones deben tener igual pi.sum");
+    ASSERT(a->pi.j   == b->pi.j,
+           "dos tareas con mismas iteraciones deben tener igual pi.j");
 
     task_destroy(a);
     task_destroy(b);
@@ -331,21 +341,19 @@ TEST(test_pi_determinism)
 
 TEST(test_pi_convergence)
 {
-    task_t *t = task_create();
+    task_t *t = task_create(0, 1, 1);
     ASSERT(t != NULL, "task_create debe retornar un puntero valido");
 
-    for (uint32_t i = 0; i < 1000000; i++){
-        task_do_work_unit(t);
-    }
+    for (uint32_t i = 0; i < 1000000; i++)
+        advance_pi(t);
 
     double error = t->pi.sum - 3.14159265358979323846;
     ASSERT(error < 1e-2 && error > -1e-2,
-        "pi.sum debe converger a pi con tolerancia 1e-2");
+           "pi.sum debe converger a pi con tolerancia 1e-2");
 
     task_destroy(t);
     return 0;
 }
-
 /* ── Main ───────────────────────────────────────────────────── */
 
 int main(void)

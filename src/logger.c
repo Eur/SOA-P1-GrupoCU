@@ -84,16 +84,37 @@ static bool logger_fill_events_log_file_path(const char * custom_events_log_file
 }
 
 
+static bool logger_fill_summary_log_file_path(const char *custom_summary_log_file_path) {
+    int result = -1;
+    if(custom_summary_log_file_path == NULL){
+        char tod[TOD_BUFF_SIZE];
+        if(!logger_tod_to_human_read_str(tod, true)){
+            return false;
+        }
+        result = snprintf(summary_log_file_path, sizeof(summary_log_file_path),
+                          LOG_SUMMARY_DEFAULT_PATH, tod);
+    } else {
+        result = snprintf(summary_log_file_path, sizeof(summary_log_file_path), "%s", custom_summary_log_file_path);
+    }
+    return result > 0;
+}
 
-bool logger_init_structure(const char *custom_events_log_file_path, __attribute__((unused)) const char * custom_summary_log_file_path) {
+bool logger_init_structure(const char *custom_events_log_file_path, const char * custom_summary_log_file_path) {
 
     if (logger_fill_events_log_file_path(custom_events_log_file_path) == false) {
         fprintf(stderr, "Logger: Failed filling event logs file buffer: '%d'\n", __LINE__);
         return false;
     }
 
-    // TODO: create a similar structure for summary log and delete the unused att when completed
 
+    if (!logger_fill_summary_log_file_path(custom_summary_log_file_path)) {
+        fprintf(stderr, "Logger: Failed filling summary log file buffer: '%d'\n", __LINE__);
+        return false;
+    }
+    if (!logger_create_log_tree(summary_log_file_path)) {
+        fprintf(stderr, "Logger: Failed creating summary log file path: '%d'\n", __LINE__);
+        return false;
+    }
 
     bool eventlog_path_tree_result = logger_create_log_tree(events_log_file_path);
 
@@ -133,5 +154,68 @@ void logger_log_msg(FILE * file, const char * format, ...) {
     // Print a line jump always after the log
     fprintf(file, "\n");
     fflush(file);
+}
+
+
+bool logger_write_summary(task_t **tasks, uint32_t count) {
+
+    if (tasks == NULL || *tasks == NULL || count == 0) {
+        return false;
+    }
+
+    uint64_t total_done = 0;
+
+    for (uint32_t i = 0; i < count; i++) {
+        if (tasks[i] == NULL) {
+            continue;
+        }
+        total_done += tasks[i]->work_units_done;
+    }
+
+    FILE *f = fopen(summary_log_file_path, "w");
+    if (f == NULL) {
+        fprintf(stderr, "Logger: Failed to open summary log file: %s\n", strerror(errno));
+        return false;
+    }
+
+    fprintf(f, "task_id,tickets,work_units_assigned,work_units_completed,"
+               "dispatches,first_dispatch,last_dispatch,pi_approx,observed_share\n");
+
+    for (uint32_t i = 0; i < count; i++) {
+        task_t *task = tasks[i];
+
+        double pi_approx = 2.0 * task->pi.sum;
+
+        double observed_share = (total_done > 0)
+            ? (double)task->work_units_done / total_done
+            : 0.0;
+
+        char first_ts[TOD_BUFF_SIZE] = "N/A";
+        char last_ts[TOD_BUFF_SIZE] = "N/A";
+
+
+    if (task->first_dispatch != 0) {
+            struct tm *tm_first = localtime(&task->first_dispatch);
+            strftime(first_ts, sizeof(first_ts), "%Y-%m-%d %H:%M:%S", tm_first);
+        }
+        if (task->last_dispatch != 0) {
+            struct tm *tm_last = localtime(&task->last_dispatch);
+            strftime(last_ts, sizeof(last_ts), "%Y-%m-%d %H:%M:%S", tm_last);
+        }
+
+        fprintf(f, "%u,%u,%u,%u,%u,%s,%s,%.10f,%.6f\n",
+            task->id,
+            task->tickets,
+            task->work_units,
+            task->work_units_done,
+            task->dispatches,
+            first_ts,
+            last_ts,
+            pi_approx,
+            observed_share);
+    }
+
+    fclose(f);
+    return true;
 }
 

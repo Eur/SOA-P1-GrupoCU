@@ -39,6 +39,8 @@ bool rng_xorshift32_get(uint32_t * out_random_number) {
     x ^= x >> 17;
     x ^= x << 5;
 
+
+    rng_seed = x; 
     /*
      * Assigning the generated pseudorandom number to
      * the out parameter
