@@ -49,7 +49,7 @@ void task_destroy(task_t *task)
 }
 
 
-bool task_transition_to_running(task_t *task)
+bool task_transition_to_running(task_t *task, uint32_t global_dispatch)
 {
     pthread_mutex_lock(&mutex);
     if (task->state != TASK_READY) {
@@ -59,10 +59,9 @@ bool task_transition_to_running(task_t *task)
     }
     task->state = TASK_RUNNING;
     task->dispatches++;
-    time_t now = time(NULL);
     if (task->dispatches == 1)
-        task->first_dispatch = now;
-    task->last_dispatch = now;
+        task->first_dispatch = global_dispatch;
+    task->last_dispatch = global_dispatch;
     pthread_cond_broadcast(&state_cond);
     pthread_mutex_unlock(&mutex);
     return true;    

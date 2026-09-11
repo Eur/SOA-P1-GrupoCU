@@ -189,33 +189,20 @@ bool logger_write_summary(task_t **tasks, uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {
         task_t *task = tasks[i];
 
-        double pi_approx = 2.0 * task->pi.sum;
+        double pi_approx = task->pi.sum;
 
         double observed_share = (total_done > 0)
             ? (double)task->work_units_done / total_done
             : 0.0;
 
-        char first_ts[TOD_BUFF_SIZE] = "N/A";
-        char last_ts[TOD_BUFF_SIZE] = "N/A";
-
-
-    if (task->first_dispatch != 0) {
-            struct tm *tm_first = localtime(&task->first_dispatch);
-            strftime(first_ts, sizeof(first_ts), "%Y-%m-%d %H:%M:%S", tm_first);
-        }
-        if (task->last_dispatch != 0) {
-            struct tm *tm_last = localtime(&task->last_dispatch);
-            strftime(last_ts, sizeof(last_ts), "%Y-%m-%d %H:%M:%S", tm_last);
-        }
-
-        fprintf(f, "%u,%u,%u,%u,%u,%s,%s,%.10f,%.6f\n",
+        fprintf(f, "%u,%u,%u,%u,%u,%u,%u,%.10f,%.6f\n",
             task->id,
             task->tickets,
             task->work_units,
             task->work_units_done,
             task->dispatches,
-            first_ts,
-            last_ts,
+            task->first_dispatch,
+            task->last_dispatch,
             pi_approx,
             observed_share);
     }

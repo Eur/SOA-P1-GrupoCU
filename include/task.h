@@ -48,8 +48,8 @@ typedef struct {
     uint32_t id;
     uint32_t tickets;
     uint32_t work_units;
-    time_t   first_dispatch;
-    time_t   last_dispatch;
+    uint32_t first_dispatch;
+    uint32_t last_dispatch;
     uint32_t work_units_done;
     uint32_t dispatches;
     uint32_t slice_size;
@@ -93,7 +93,7 @@ void task_set_slice(task_t *task, uint32_t units);
  * @param task: task to transition.
  * @return true on success, false if the task is not in TASK_READY state.
  */
-bool task_transition_to_running(task_t *task);
+bool task_transition_to_running(task_t *task, uint32_t global_dispatch);
 
 /**
  * @brief Transitions a task from TASK_RUNNING to TASK_READY.

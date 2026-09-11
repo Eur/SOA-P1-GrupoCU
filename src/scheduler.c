@@ -225,7 +225,7 @@ void scheduler_main_loop(struct node *task_list_head) {
          * thread is set to wait.
          */
         uint32_t units_before = data_from_task->work_units_done;
-        task_transition_to_running(data_from_task);
+        task_transition_to_running(data_from_task, global_dispatch);
         
         scheduler_main_thread_waits_until_no_running_workers(task_list_head);
 
