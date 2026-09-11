@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <math.h>
 
 #include "parser.h"
 #include "double_linked_list.h"
@@ -118,11 +119,11 @@ struct node* scheduler_init(const char * tasks_metadata_path, uint32_t rng_seed)
     return task_list_head;
 }
 
-void scheduler_configure_cooperative(struct node *task_list_head, uint32_t percent) {
+void scheduler_configure_cooperative(struct node *task_list_head, float percent) {
     
     FOR_EACH_NODE(task_list_head, current_node) {
         task_t *t = (task_t *)current_node->data;
-        uint64_t raw = ((uint64_t)t->work_units * percent + 99) / 100;
+        uint64_t raw = (uint64_t)ceilf((float)t->work_units * percent / 100.0f);
         uint32_t slice = (raw >= 1) ? (uint32_t)raw : 1;
         task_set_slice(t, slice);
     }
@@ -133,8 +134,14 @@ void scheduler_main_loop(struct node *task_list_head) {
     uint32_t global_dispatch = 1;
 
     bool remaining_tasks = true;
-
+    uint32_t max_dispatches = parser_max_dispatches_get();
     while (remaining_tasks) {
+
+        if (max_dispatches > 0 && global_dispatch > max_dispatches) {
+            task_shutdown_all(task_list_head);
+            remaining_tasks = false;
+            continue;
+        }
         /*
          * The first thing to do is to wait until the RUNNING
          * task has finished:

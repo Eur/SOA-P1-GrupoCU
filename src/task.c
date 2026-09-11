@@ -301,3 +301,14 @@ bool task_is_there_any_running_task(struct node *task_list_head) {
     pthread_mutex_unlock(&mutex);
     return false;
 }
+void task_shutdown_all(struct node *task_list_head) {
+    pthread_mutex_lock(&mutex);
+    FOR_EACH_NODE(task_list_head, n) {
+        task_t *t = (task_t *)n->data;
+        if (t->state == TASK_READY) {
+            t->state = TASK_FINISHED;
+        }
+    }
+    pthread_cond_broadcast(&state_cond);
+    pthread_mutex_unlock(&mutex);
+}

@@ -56,11 +56,11 @@ void logger_log_msg(FILE * file, const char * format, ...);
  * Public macro that is in charged of logging into the 
  * event log file with whatever the format is formed.
  */
-#define LOG_EVENT(format, ...) \
+#define LOG_EVENT(...) \
     do { \
         FILE * eventlog_file = logger_log_tod(true); \
         if (eventlog_file != NULL) { \
-            logger_log_msg(eventlog_file, format, ##__VA_ARGS__); \
+            logger_log_msg(eventlog_file, __VA_ARGS__); \
             fclose(eventlog_file); \
         } else { \
             fprintf(stderr, "Logger: Failed to open eventlog file': %s\n", strerror(errno)); \

@@ -159,6 +159,12 @@ void * task_do_work_unit(void * task_node);
  */
 char * task_state_enum_to_str(task_state_t task_state_enum);
 
+/**
+ * @brief Transitions all READY tasks to FINISHED and broadcasts.
+ * @details Called by the scheduler when max_dispatches is reached,
+ *          to unblock worker threads waiting in cond_wait.
+ */
+void task_shutdown_all(struct node *task_list_head);
 
 void task_broadcast_signal_to_wake_threads(void);
 

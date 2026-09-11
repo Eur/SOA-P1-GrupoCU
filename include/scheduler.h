@@ -23,7 +23,7 @@ struct node* scheduler_init(const char * tasks_metadata_path, uint32_t rng_seed)
  * @param task_list_head  List returned by scheduler_init.
  * @param percent         Value of P from --slice-percent.
  */
-void scheduler_configure_cooperative(struct node *task_list_head, uint32_t percent);
+void scheduler_configure_cooperative(struct node *task_list_head, float percent);
 
 
 /**

@@ -19,7 +19,9 @@ TEST_SUMMARY_SRCS := test_summary.c \
 TEST_COOPERATIVE := /tmp/test_cooperative
 TEST_COOPERATIVE_SRCS := test_cooperative.c \
                          ../../src/task.c
+all: test_parser test_dll test_rng test_summary test_cooperative
 
+clean: clean_test_parser clean_test_dll clean_test_rng clean_test_summary clean_test_cooperative
 .PHONY: all clean
 
 ## Parser unit tests

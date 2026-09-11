@@ -32,8 +32,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (strcmp(mode, "cooperative") == 0) {
-        uint32_t percent = (uint32_t)parser_slice_percentage_get();
-        scheduler_configure_cooperative(task_list_head, percent);
+        scheduler_configure_cooperative(task_list_head, parser_slice_percentage_get());
     }
     /* quantum: Issue #8 */
 
