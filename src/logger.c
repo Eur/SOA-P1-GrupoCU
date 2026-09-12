@@ -132,7 +132,12 @@ FILE * logger_log_tod(bool eventlog) {
         return NULL;
     }
 
-    FILE *log_file = fopen(eventlog ? events_log_file_path : summary_log_file_path, "a");
+    
+    static bool events_initialized = false;
+    const char *mode = (eventlog && !events_initialized) ? "w" : "a";
+    if (eventlog) events_initialized = true;
+
+    FILE *log_file = fopen(eventlog ? events_log_file_path : summary_log_file_path, mode);
     fprintf(log_file, "[%s]", time_of_day_buffer);
     fflush(log_file);
 
@@ -157,19 +162,19 @@ void logger_log_msg(FILE * file, const char * format, ...) {
 }
 
 
-bool logger_write_summary(task_t **tasks, uint32_t count) {
+bool logger_write_summary(struct node *list_head) {
 
-    if (tasks == NULL || *tasks == NULL || count == 0) {
+    if (list_head == NULL) {
         return false;
     }
 
     uint64_t total_done = 0;
-
-    for (uint32_t i = 0; i < count; i++) {
-        if (tasks[i] == NULL) {
+    FOR_EACH_NODE(list_head, n) {
+        task_t *task = (task_t *)n->data;
+        if (task == NULL) {
             continue;
         }
-        total_done += tasks[i]->work_units_done;
+        total_done += task->work_units_done;
     }
 
     FILE *f = fopen(summary_log_file_path, "w");
@@ -181,36 +186,25 @@ bool logger_write_summary(task_t **tasks, uint32_t count) {
     fprintf(f, "task_id,tickets,work_units_assigned,work_units_completed,"
                "dispatches,first_dispatch,last_dispatch,pi_approx,observed_share\n");
 
-    for (uint32_t i = 0; i < count; i++) {
-        task_t *task = tasks[i];
+    FOR_EACH_NODE(list_head, n) {
+        task_t *task = (task_t *)n->data;
+        if (task == NULL) {
+            continue;
+        }
 
-        double pi_approx = 2.0 * task->pi.sum;
-
+        double pi_approx = task->pi.sum;
         double observed_share = (total_done > 0)
             ? (double)task->work_units_done / total_done
             : 0.0;
 
-        char first_ts[TOD_BUFF_SIZE] = "N/A";
-        char last_ts[TOD_BUFF_SIZE] = "N/A";
-
-
-    if (task->first_dispatch != 0) {
-            struct tm *tm_first = localtime(&task->first_dispatch);
-            strftime(first_ts, sizeof(first_ts), "%Y-%m-%d %H:%M:%S", tm_first);
-        }
-        if (task->last_dispatch != 0) {
-            struct tm *tm_last = localtime(&task->last_dispatch);
-            strftime(last_ts, sizeof(last_ts), "%Y-%m-%d %H:%M:%S", tm_last);
-        }
-
-        fprintf(f, "%u,%u,%u,%u,%u,%s,%s,%.10f,%.6f\n",
+        fprintf(f, "%u,%u,%u,%u,%u,%u,%u,%.10f,%.6f\n",
             task->id,
             task->tickets,
             task->work_units,
             task->work_units_done,
             task->dispatches,
-            first_ts,
-            last_ts,
+            task->first_dispatch,
+            task->last_dispatch,
             pi_approx,
             observed_share);
     }

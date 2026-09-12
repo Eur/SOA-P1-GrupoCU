@@ -25,6 +25,7 @@ task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
     task->last_dispatch  = 0;
     task->work_units_done = 0;
     task->dispatches = 0;
+    task->slice_size = 0; // 0 = no slice cap set (not in cooperative mode) until scheduler_configure_cooperative runs
     task->state = TASK_READY;
     task->pi.sum = 2.0;
     task->pi.term = 1.0;
@@ -48,7 +49,7 @@ void task_destroy(task_t *task)
 }
 
 
-bool task_transition_to_running(task_t *task)
+bool task_transition_to_running(task_t *task, uint32_t global_dispatch)
 {
     pthread_mutex_lock(&mutex);
     if (task->state != TASK_READY) {
@@ -58,10 +59,9 @@ bool task_transition_to_running(task_t *task)
     }
     task->state = TASK_RUNNING;
     task->dispatches++;
-    time_t now = time(NULL);
     if (task->dispatches == 1)
-        task->first_dispatch = now;
-    task->last_dispatch = now;
+        task->first_dispatch = global_dispatch;
+    task->last_dispatch = global_dispatch;
     pthread_cond_broadcast(&state_cond);
     pthread_mutex_unlock(&mutex);
     return true;    
@@ -183,6 +183,9 @@ void task_wait_until_no_running(struct node *task_list_head)
     pthread_mutex_unlock(&mutex);
 }
 
+void task_set_slice(task_t *task, uint32_t slice_size) {
+    task->slice_size = (slice_size >= 1) ? slice_size : 1;
+}
 
 void * task_do_work_unit(void * task_node) {
     /*
@@ -231,27 +234,38 @@ void * task_do_work_unit(void * task_node) {
          */
         pthread_mutex_unlock(&mutex);
 
+        uint32_t units_run = 0;
         /*
-         * Delete the following line when work is
-         * ready. This is evidence that the tasks are
-         * being addressed, for debug purposes:
+         * slice_size == 0 means no cooperative slice was ever configured
+         * for this task (task_set_slice clamps to a minimum of 1), so it
+         * doubles as the "not in cooperative mode" signal: run the task
+         * to completion in a single dispatch instead of capping units_run.
+         *
+         * TODO(Issue #8): once quantum mode lands, this needs its own
+         * condition here too, e.g.
+         * (units_run < current_task_data->slice_size && mode == cooperative)
+         * || (quantum_logic && mode == quantum)
+         * so cooperative and quantum slicing can be toggled independently.
          */
-        printf("Task %u is running\n", current_task_node->id);
-        current_task_data->pi.j++;
-        current_task_data->pi.term *=
-            ((2.0 * current_task_data->pi.j - 1.0) *
-             (2.0 * current_task_data->pi.j - 1.0)) /
-            ((2.0 * current_task_data->pi.j) *
-             (2.0 * current_task_data->pi.j + 1.0));
-        if (!isfinite(current_task_data->pi.term) ||
-            !isfinite(current_task_data->pi.sum)) {
-            fprintf(stderr, "Task %u: floating point overflow in pi computation at j=%" PRIu64 "\n",
-                    current_task_data->id, current_task_data->pi.j);
-            break;
+        while ((current_task_data->slice_size == 0 ||
+                units_run < current_task_data->slice_size) &&
+               current_task_data->work_units_done < current_task_node->work_units) {
+            current_task_data->pi.j++;
+            current_task_data->pi.term *=
+                ((2.0 * (double)current_task_data->pi.j - 1.0) *
+                 (2.0 * (double)current_task_data->pi.j - 1.0)) /
+                ((2.0 * (double)current_task_data->pi.j) *
+                 (2.0 * (double)current_task_data->pi.j + 1.0));
+            if (!isfinite(current_task_data->pi.term) ||
+                !isfinite(current_task_data->pi.sum)) {
+                fprintf(stderr, "Task %u: floating point overflow in pi computation at j=%" PRIu64 "\n",
+                        current_task_data->id, current_task_data->pi.j);
+                break;
+            }
+            current_task_data->pi.sum += 2.0 * current_task_data->pi.term;
+            current_task_data->work_units_done++;
+            units_run++;
         }
-        current_task_data->pi.sum += 2.0 * current_task_data->pi.term;
-
-        current_task_data->work_units_done++;
 
         /*
          * Now that the worker is holding the mutex lets leverage on
@@ -298,4 +312,15 @@ bool task_is_there_any_running_task(struct node *task_list_head) {
     }
     pthread_mutex_unlock(&mutex);
     return false;
+}
+void task_shutdown_all(struct node *task_list_head) {
+    pthread_mutex_lock(&mutex);
+    FOR_EACH_NODE(task_list_head, n) {
+        task_t *t = (task_t *)n->data;
+        if (t->state == TASK_READY) {
+            t->state = TASK_FINISHED;
+        }
+    }
+    pthread_cond_broadcast(&state_cond);
+    pthread_mutex_unlock(&mutex);
 }

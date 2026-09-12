@@ -48,10 +48,11 @@ typedef struct {
     uint32_t id;
     uint32_t tickets;
     uint32_t work_units;
-    time_t   first_dispatch;
-    time_t   last_dispatch;
+    uint32_t first_dispatch;
+    uint32_t last_dispatch;
     uint32_t work_units_done;
     uint32_t dispatches;
+    uint32_t slice_size;
     task_state_t state;
     pi_state_t pi;
     pthread_mutex_t mutex;
@@ -74,6 +75,17 @@ task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units);
 void task_destroy(task_t *task);
 
 /**
+ * @brief Sets the number of work units to execute per activation.
+ *
+ * @details Must be called after scheduler_init and before scheduler_main_loop.
+ *          Not thread-safe: no worker may be RUNNING when this is called.
+ *
+ * @param task   Target task. Must not be NULL.
+ * @param units  Units per activation; clamped to minimum 1.
+ */
+void task_set_slice(task_t *task, uint32_t units);
+
+/**
  * @brief Transitions a task from TASK_READY to TASK_RUNNING.
  *
  * @details Increments the dispatch counter on success.
@@ -81,7 +93,7 @@ void task_destroy(task_t *task);
  * @param task: task to transition.
  * @return true on success, false if the task is not in TASK_READY state.
  */
-bool task_transition_to_running(task_t *task);
+bool task_transition_to_running(task_t *task, uint32_t global_dispatch);
 
 /**
  * @brief Transitions a task from TASK_RUNNING to TASK_READY.
@@ -147,6 +159,12 @@ void * task_do_work_unit(void * task_node);
  */
 char * task_state_enum_to_str(task_state_t task_state_enum);
 
+/**
+ * @brief Transitions all READY tasks to FINISHED and broadcasts.
+ * @details Called by the scheduler when max_dispatches is reached,
+ *          to unblock worker threads waiting in cond_wait.
+ */
+void task_shutdown_all(struct node *task_list_head);
 
 void task_broadcast_signal_to_wake_threads(void);
 
