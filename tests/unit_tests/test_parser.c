@@ -249,7 +249,7 @@ TEST(test_task_ready_to_running)
 {
     task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
-    ASSERT(task_transition_to_running(task) == true, "READY -> RUNNING debe ser exitoso");
+    ASSERT(task_transition_to_running(task, 1) == true, "READY -> RUNNING debe ser exitoso");
     ASSERT(task->state      == TASK_RUNNING, "estado debe ser TASK_RUNNING");
     ASSERT(task->dispatches == 1,            "dispatches debe ser 1");
     task_destroy(task);
@@ -260,7 +260,7 @@ TEST(test_task_running_to_ready)
 {
     task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
-    task_transition_to_running(task);
+    task_transition_to_running(task, 1);
     ASSERT(task_transition_to_ready(task) == true, "RUNNING -> READY debe ser exitoso");
     ASSERT(task->state == TASK_READY, "estado debe ser TASK_READY");
     task_destroy(task);
@@ -271,7 +271,7 @@ TEST(test_task_running_to_finished)
 {
     task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
-    task_transition_to_running(task);
+    task_transition_to_running(task, 1);
     ASSERT(task_transition_to_finished(task) == true, "RUNNING -> FINISHED debe ser exitoso");
     ASSERT(task->state == TASK_FINISHED, "estado debe ser TASK_FINISHED");
     task_destroy(task);
@@ -282,9 +282,9 @@ TEST(test_task_finished_es_terminal)
 {
     task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
-    task_transition_to_running(task);
+    task_transition_to_running(task, 1);
     task_transition_to_finished(task);
-    ASSERT(task_transition_to_running(task)  == false, "FINISHED no puede volver a RUNNING");
+    ASSERT(task_transition_to_running(task, 2)  == false, "FINISHED no puede volver a RUNNING");
     ASSERT(task_transition_to_ready(task)    == false, "FINISHED no puede volver a READY");
     ASSERT(task->state == TASK_FINISHED, "estado debe seguir siendo TASK_FINISHED");
     task_destroy(task);
@@ -296,7 +296,7 @@ TEST(test_task_is_eligible)
     task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     ASSERT(task_is_eligible(task) == true, "tarea READY debe ser elegible");
-    task_transition_to_running(task);
+    task_transition_to_running(task, 1);
     ASSERT(task_is_eligible(task) == false, "tarea RUNNING no debe ser elegible");
     task_transition_to_finished(task);
     ASSERT(task_is_eligible(task) == false, "tarea FINISHED no debe ser elegible");
@@ -308,11 +308,11 @@ TEST(test_task_dispatches_acumulan)
 {
     task_t *task = task_create(0, 1, 1);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
-    task_transition_to_running(task);
+    task_transition_to_running(task, 1);
     task_transition_to_ready(task);
-    task_transition_to_running(task);
+    task_transition_to_running(task, 2);
     task_transition_to_ready(task);
-    task_transition_to_running(task);
+    task_transition_to_running(task, 3);
     ASSERT(task->dispatches == 3, "dispatches debe ser 3 tras tres sorteos ganados");
     task_destroy(task);
     return 0;

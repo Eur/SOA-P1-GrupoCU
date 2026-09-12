@@ -40,13 +40,7 @@ int main(int argc, char *argv[]) {
 
     scheduler_main_loop(task_list_head);
 
-    task_t *tasks[32];
-    uint32_t task_count = 0;
-    FOR_EACH_NODE(task_list_head, n) {
-        if (task_count < 32)
-            tasks[task_count++] = (task_t *)n->data;
-    }
-    logger_write_summary(tasks, task_count);
+    logger_write_summary(task_list_head);
 
     if (scheduler_deinit(task_list_head) == false) {
         return 1;

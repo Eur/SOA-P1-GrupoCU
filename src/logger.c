@@ -162,19 +162,19 @@ void logger_log_msg(FILE * file, const char * format, ...) {
 }
 
 
-bool logger_write_summary(task_t **tasks, uint32_t count) {
+bool logger_write_summary(struct node *list_head) {
 
-    if (tasks == NULL || *tasks == NULL || count == 0) {
+    if (list_head == NULL) {
         return false;
     }
 
     uint64_t total_done = 0;
-
-    for (uint32_t i = 0; i < count; i++) {
-        if (tasks[i] == NULL) {
+    FOR_EACH_NODE(list_head, n) {
+        task_t *task = (task_t *)n->data;
+        if (task == NULL) {
             continue;
         }
-        total_done += tasks[i]->work_units_done;
+        total_done += task->work_units_done;
     }
 
     FILE *f = fopen(summary_log_file_path, "w");
@@ -186,11 +186,13 @@ bool logger_write_summary(task_t **tasks, uint32_t count) {
     fprintf(f, "task_id,tickets,work_units_assigned,work_units_completed,"
                "dispatches,first_dispatch,last_dispatch,pi_approx,observed_share\n");
 
-    for (uint32_t i = 0; i < count; i++) {
-        task_t *task = tasks[i];
+    FOR_EACH_NODE(list_head, n) {
+        task_t *task = (task_t *)n->data;
+        if (task == NULL) {
+            continue;
+        }
 
         double pi_approx = task->pi.sum;
-
         double observed_share = (total_done > 0)
             ? (double)task->work_units_done / total_done
             : 0.0;

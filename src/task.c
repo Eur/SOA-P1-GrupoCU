@@ -25,7 +25,7 @@ task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
     task->last_dispatch  = 0;
     task->work_units_done = 0;
     task->dispatches = 0;
-    task->slice_size = 1; // Default slice size
+    task->slice_size = 0; // 0 = no slice cap set (not in cooperative mode) until scheduler_configure_cooperative runs
     task->state = TASK_READY;
     task->pi.sum = 2.0;
     task->pi.term = 1.0;
@@ -184,7 +184,7 @@ void task_wait_until_no_running(struct node *task_list_head)
 }
 
 void task_set_slice(task_t *task, uint32_t slice_size) {
-    task -> slice_size = (slice_size >=1) ? slice_size : 1;
+    task->slice_size = (slice_size >= 1) ? slice_size : 1;
 }
 
 void * task_do_work_unit(void * task_node) {
@@ -235,7 +235,20 @@ void * task_do_work_unit(void * task_node) {
         pthread_mutex_unlock(&mutex);
 
         uint32_t units_run = 0;
-        while (units_run < current_task_data->slice_size &&
+        /*
+         * slice_size == 0 means no cooperative slice was ever configured
+         * for this task (task_set_slice clamps to a minimum of 1), so it
+         * doubles as the "not in cooperative mode" signal: run the task
+         * to completion in a single dispatch instead of capping units_run.
+         *
+         * TODO(Issue #8): once quantum mode lands, this needs its own
+         * condition here too, e.g.
+         * (units_run < current_task_data->slice_size && mode == cooperative)
+         * || (quantum_logic && mode == quantum)
+         * so cooperative and quantum slicing can be toggled independently.
+         */
+        while ((current_task_data->slice_size == 0 ||
+                units_run < current_task_data->slice_size) &&
                current_task_data->work_units_done < current_task_node->work_units) {
             current_task_data->pi.j++;
             current_task_data->pi.term *=

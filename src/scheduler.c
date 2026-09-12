@@ -137,11 +137,6 @@ void scheduler_main_loop(struct node *task_list_head) {
     uint32_t max_dispatches = parser_max_dispatches_get();
     while (remaining_tasks) {
 
-        if (max_dispatches > 0 && global_dispatch > max_dispatches) {
-            task_shutdown_all(task_list_head);
-            remaining_tasks = false;
-            continue;
-        }
         /*
          * The first thing to do is to wait until the RUNNING
          * task has finished:
@@ -155,8 +150,21 @@ void scheduler_main_loop(struct node *task_list_head) {
          * the state to READY (because the quantum has finished,
          * or other policy has stopped the task but it has not
          * finished) or FINISHED.
+         *
+         * This has to happen before anything else in the loop,
+         * including the max_dispatches check below: until we know
+         * no task is RUNNING, the scheduler cannot be sure it has
+         * exclusive control, so it must not call task_shutdown_all
+         * (or touch task state at all) while a worker could still
+         * be mid-flight and about to release the mutex.
          */
         scheduler_main_thread_waits_until_no_running_workers(task_list_head);
+
+        if (max_dispatches > 0 && global_dispatch > max_dispatches) {
+            task_shutdown_all(task_list_head);
+            remaining_tasks = false;
+            continue;
+        }
 
         /*
          * If there are no more tasks to address, then stops

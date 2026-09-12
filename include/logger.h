@@ -73,15 +73,14 @@ void logger_log_msg(FILE * file, const char * format, ...);
 /**
  * @brief Writes the summary CSV with one row per task.
  * @details Called once after all tasks finish. Overwrites any previous file.
- * @param tasks  Array of task pointers.
- * @param count  Number of tasks.
+ * @param list_head  Head of the task list.
  * @return true on success, false on I/O error.
  */
 /**
  * Public macro to write the summary CSV.
  * Mirrors LOG_EVENT for API consistency.
  */
-#define LOG_SUMMARY(tasks, count) logger_write_summary(tasks, count)
+#define LOG_SUMMARY(list_head) logger_write_summary(list_head)
 
-bool logger_write_summary(task_t **tasks, uint32_t count);
+bool logger_write_summary(struct node *list_head);
 #endif /* LOGGER_H */
