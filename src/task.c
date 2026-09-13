@@ -291,7 +291,7 @@ static void task_do_pi_calc_by_slice_units(struct node * current_task_node, task
  */
 static void task_do_pi_calc_by_quantum_units(struct node * current_task_node, task_t * current_task_data, const uint32_t quantum) {
     uint32_t units_run = 0;
-        while (units_run <= quantum && current_task_data->work_units_done < current_task_node->work_units) {
+        while (units_run < quantum && current_task_data->work_units_done < current_task_node->work_units) {
 
             if (task_do_one_working_unit(current_task_data) == false) {
                 break;
@@ -368,7 +368,13 @@ void * task_do_work_unit(void * task_node) {
         } else {
             // This should never happen since we validate the parameters
             fprintf(stderr, "Failure: not mode chosen, exit main task loop");
-            return NULL;
+
+            /*
+             * If this ever occurr, lets execute one working unit to
+             * avoid the scheduler to hang, but the failure log will
+             * alert of this behavior:
+             */
+            task_do_one_working_unit(current_task_data);
         }
 
 
