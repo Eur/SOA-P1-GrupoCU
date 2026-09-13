@@ -1,41 +1,67 @@
-# Authors:
+# Authors
 - Edgar Chaves. 2017239281. Edjchg
 - Esteban Ureña. 201025605. Eur
 
-# Main program lottery_shceduler compilation directives with Make
+# Project build directives with Make
 
-- `make all`: this directive will compile **lottery_scheduler** binary with main.c as entry point.
-- `make clean`: this directive will clean all binary and ASan reports.
-- `make test`: this directive will compile and run the executable **lottery_scheduler** with main.c as the entry point.
-- `make asan`: this directive will compile **lottery_scheduler** against AdressSanitizer. If the binary has any memory issue, then the reports from ASan will be redirected to file called asan_report.<process id> and will look something like:
+- `make all`: compiles the main scheduler binary `lottery_scheduler`.
+- `make clean`: removes compiled binaries and sanitizer artifacts.
+- `make test`: builds and executes the scheduler with the default `main` entry point.
+- `make asan`: builds the program with AddressSanitizer enabled.
+- `make asan_cooperative`: runs the ASan build in cooperative mode with the sample cooperative command.
+- `make tsan`: builds the program with ThreadSanitizer enabled.
+- `make tsan_cooperative`: runs the TSan build in cooperative mode with the sample cooperative command.
+
+# Unit test directives
+
+The unit tests are defined under `tests/unit_tests/Makefile` and can be run from that directory:
+
+- `make all`: runs all unit tests.
+- `make test_parser`: compiles and runs the parser tests.
+- `make test_dll`: compiles and runs the doubly linked list tests.
+- `make test_rng`: compiles and runs the RNG tests.
+- `make test_summary`: compiles and runs the summary tests.
+- `make test_cooperative`: compiles and runs the cooperative-mode tests.
+- `make clean`: removes all generated test binaries.
+
+# Runtime parameters
+
+The scheduler accepts the following flags:
+
+- `-i, --input FILE`: path to the task CSV file.
+- `-m, --mode MODE`: scheduling mode. Supported values are `quantum` and `cooperative`.
+- `-q, --quantum UNITS`: quantum size, required when `--mode quantum` is used.
+- `-p, --slice-percent PCT`: percentage of each task's work used for a cooperative slice, required when `--mode cooperative` is used.
+- `-s, --seed VALUE`: pseudo-random seed used by the lottery scheduler.
+- `-l, --log FILE`: output file for scheduler event logs.
+- `-z, --summary FILE`: output file for the execution summary.
+- `-d, --max-dispatches N`: maximum number of scheduler dispatches.
+- `-h, --help`: prints the available options and usage examples.
+
+# Example executions
+
+## Quantum mode
 ```bash
-asan_report.1823
-
-=================================================================
-==1823==ERROR: LeakSanitizer: detected memory leaks
-
-Indirect leak of 40 byte(s) in 1 object(s) allocated from:
-    #0 0x7fad1c24e887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
-    #1 0x55612f6fa5dd in insert_node src/double_linked_list.c:17
-    #2 0x55612f6fa3aa in main src/main.c:27
-    #3 0x7fad1bf9ad8f  (/lib/x86_64-linux-gnu/libc.so.6+0x29d8f)
-
-Indirect leak of 40 byte(s) in 1 object(s) allocated from:
-    #0 0x7fad1c24e887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
-    #1 0x55612f6fa5dd in insert_node src/double_linked_list.c:17
-    #2 0x55612f6fa390 in main src/main.c:26
-    #3 0x7fad1bf9ad8f  (/lib/x86_64-linux-gnu/libc.so.6+0x29d8f)
-
-SUMMARY: AddressSanitizer: 80 byte(s) leaked in 2 allocation(s).
+./lottery_scheduler --input tests/base.csv --mode quantum --quantum 1000 --seed 2026 --log results/base_events.csv --summary results/base_summary.csv
 ```
 
-# Unit test compilation directives with Make
+## Cooperative mode
+```bash
+./lottery_scheduler --input tests/base.csv --mode cooperative --slice-percent 10 --seed 2026 --summary results/base_summary.csv
+```
 
-- `make test_parser`: this will compile the parser tests and execute them.
-- `make clean_test_parser`: this will clean the binary created to test the parser.
+## ASan cooperative mode
+```bash
+make asan_cooperative
+```
 
-# Execution mode:
+## TSan cooperative mode
+```bash
+make tsan_cooperative
+```
 
-Some flags are available for this program:
-- `--log, -l`: this flag specifies to the program the location to save the event logs.
-- `--help, -h`: this flag shows these avilable flags.
+# Notes
+
+- The scheduler validates that required parameters are present and rejects invalid values.
+- The `--log` flag is optional, but when provided the directory must already exist.
+- `--summary` is also required for the execution summary output, as enforced by the parser.
