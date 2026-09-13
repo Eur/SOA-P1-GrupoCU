@@ -8,7 +8,7 @@ SOURCES := src/main.c src/double_linked_list.c src/parser.c src/rng.c src/schedu
 OBJECTS := $(SOURCES:.c=.o)
 
 .PHONY: all test clean
-.PHONY: asan tsan
+.PHONY: asan asan_cooperative asan_quantum tsan tsan_cooperative tsan_quantum
 
 all: $(TARGET)
 
@@ -34,6 +34,9 @@ asan: $(ASAN_TARGET)
 asan_cooperative: $(ASAN_TARGET)
 	export ASAN_OPTIONS=log_path=./asan_report:detect_leaks=1; ./$(ASAN_TARGET) --input tests/base.csv --mode cooperative --slice-percent 10 --seed 2026 --summary results/base_summary.csv
 
+asan_quantum: $(ASAN_TARGET)
+	export ASAN_OPTIONS=log_path=./asan_report:detect_leaks=1; ./$(ASAN_TARGET) --input tests/base.csv --mode quantum --quantum 1000 --seed 2026 --log results/base_events.csv --summary results/base_summary.csv
+
 $(ASAN_TARGET): $(ASAN_OBJECTS)
 	$(CC) $(ASAN_CFLAGS) $(ASAN_OBJECTS) -o $@
 
@@ -51,6 +54,9 @@ tsan: $(TSAN_TARGET)
 
 tsan_cooperative: $(TSAN_TARGET)
 	TSAN_OPTIONS=log_path=./tsan_report:halt_on_error=1 ./$(TSAN_TARGET) --input tests/base.csv --mode cooperative --slice-percent 10 --seed 2026 --summary results/base_summary.csv
+
+tsan_quantum: $(TSAN_TARGET)
+	TSAN_OPTIONS=log_path=./tsan_report:halt_on_error=1 ./$(TSAN_TARGET) --input tests/base.csv --mode quantum --quantum 1000 --seed 2026 --log results/base_events.csv --summary results/base_summary.csv
 
 $(TSAN_TARGET): $(TSAN_OBJECTS)
 	$(CC) $(TSAN_CFLAGS) $(TSAN_OBJECTS) -o $@

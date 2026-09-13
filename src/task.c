@@ -7,9 +7,37 @@
 
 #include "task.h"
 #include "double_linked_list.h"
+#include "parser.h"
 
+/*
+ * This condition variable helps to make a thread to be sleeping
+ * waiting for the condition to change. From the tasks side, the
+ * workers in READY waits for the scheduler to notify them which
+ * is the one that has won the lottery. Once the scheduler has the
+ * winner task, it broadcasts this condition variable with a change
+ * so the winner task is able to start doing the calculation.
+ *
+ * From the scheduler side, this variable makes the thread to be
+ * sleeping waiting for the RUNNING task to finish, and when it
+ * has performed the lottery, it helps to broadcast the decision
+ * among all the waiting READY worker threads.
+ */
 static pthread_cond_t state_cond  = PTHREAD_COND_INITIALIZER;
+
+/*
+ * This global mutex is used by either the RUNNING worker thread
+ * to be able to change its own state from RUNNING to READY or
+ * FINISHED, and the scheduler to iterate over all tasks and see
+ * if there are RUNNING tasks yet, without putting in risk the
+ * critical region.
+ */
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static uint32_t quantum = 0;
+
+void task_configure_quantum(const uint32_t user_quantum) {
+    quantum = user_quantum;
+}
 
 task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
 {
@@ -157,7 +185,7 @@ void task_wait_until_no_running(struct node *task_list_head)
         /*
          * If the scheduler did not find any RUNNING task
          * then we can break this main loop, so the scheduler
-         * can resume its main routin, and perform a new
+         * can resume its main routine, and perform a new
          * lottery:
          */
         if (!running) {
@@ -166,12 +194,17 @@ void task_wait_until_no_running(struct node *task_list_head)
         /*
          * The scheduler is sleep and waiting,
          * also right now the scheduler has
-         * released the lock.
+         * released the lock, so the lock is
+         * free to be acquired by the RUNNING
+         * task to change its state from
+         * RUNNING to READY or FINISHED.
          */
         pthread_cond_wait(&state_cond, &mutex);
 
         /*
-         * At this point the thread gets wake, so it
+         * When the RUNING task broadcasts its change
+         * of state, the scheduler then continues from
+         * this point and the thread gets wake, so it
          * will continue the main loop:
          */
     }
@@ -187,6 +220,99 @@ void task_set_slice(task_t *task, uint32_t slice_size) {
     task->slice_size = (slice_size >= 1) ? slice_size : 1;
 }
 
+/**
+ * @brief Executes one work unit of a task's pi calculation.
+ *
+ * @details Advances the task's Leibniz-series state, updates the accumulated
+ *          pi estimate, and increments the number of completed work units.
+ *          Reports an error if the calculation produces a non-finite value.
+ *
+ * @param current_task_data Task whose calculation state is updated. Must not
+ *                          be NULL.
+ *
+ * @return true when the calcs has been executed successfully, false otherwise
+ */
+static bool task_do_one_working_unit(task_t * current_task_data) {
+    current_task_data->pi.j++;
+    current_task_data->pi.term *=
+        ((2.0 * (double)current_task_data->pi.j - 1.0) *
+            (2.0 * (double)current_task_data->pi.j - 1.0)) /
+        ((2.0 * (double)current_task_data->pi.j) *
+            (2.0 * (double)current_task_data->pi.j + 1.0));
+    if (!isfinite(current_task_data->pi.term) ||
+        !isfinite(current_task_data->pi.sum)) {
+        fprintf(stderr, "Task %u: floating point overflow in pi computation at j=%" PRIu64 "\n",
+                current_task_data->id, current_task_data->pi.j);
+        return false;
+    }
+    current_task_data->pi.sum += 2.0 * current_task_data->pi.term;
+
+    /*
+     * This task have just completed a new working unit,
+     * so its counter is incremented to reflect so.
+     */
+    current_task_data->work_units_done++;
+
+    return true;
+}
+
+/**
+ * @brief Executes the task's pi calculation for one cooperative slice.
+ *
+ * @details Runs no more than the number of units configured in
+ *          current_task_data->slice_size, or stops earlier when the task has
+ *          completed all of its work units. The task's pi calculation state
+ *          and completed-work counter are updated in place.
+ *
+ * @param current_task_data Task whose calculation is advanced. Must not be
+ *                          NULL and must have a valid slice size.
+ */
+static void task_do_pi_calc_by_slice_units(struct node * current_task_node, task_t * current_task_data) {
+    uint32_t units_run = 0;
+        while ((units_run < current_task_data->slice_size) &&
+               current_task_data->work_units_done < current_task_node->work_units) {
+
+            if (task_do_one_working_unit(current_task_data) == false) {
+                break;
+            }
+            /*
+             * In this specific dispatch, it has completed
+             * one run, so its global run unit is incremented
+             * to reflect that.
+             */
+            units_run++;
+        }
+}
+
+/**
+ * @brief Executes the task's pi calculation for one scheduler quantum.
+ *
+ * @details Runs work units until the configured global quantum boundary is
+ *          reached, or stops earlier when the task has completed all of its
+ *          work units. The task's pi calculation state and completed-work
+ *          counter are updated in place.
+ *
+ * @param current_task_data Task whose calculation is advanced. Must not be
+ *                          NULL.
+ */
+static void task_do_pi_calc_by_quantum_units(struct node * current_task_node, task_t * current_task_data, const uint32_t quantum) {
+    uint32_t units_run = 0;
+        while (units_run <= quantum && current_task_data->work_units_done < current_task_node->work_units) {
+
+            if (task_do_one_working_unit(current_task_data) == false) {
+                break;
+            }
+
+            /*
+             * In this specific dispatch, it has completed
+             * one run, so its global run unit is incremented
+             * to reflect that. The dispatch will end until the
+             * task has reached the quantum.
+             */
+            units_run++;
+        }
+}
+
 void * task_do_work_unit(void * task_node) {
     /*
      * NOTE: This is the function that all worker threads
@@ -194,6 +320,7 @@ void * task_do_work_unit(void * task_node) {
      */
     struct node * current_task_node = (struct node *)task_node;
     task_t * current_task_data = (task_t*)current_task_node->data;
+    uint32_t quantum = parser_quantum_get();
     /*
      * We need to mantain the thread alive in a loop,
      * but this is not busy-waiting as it is explained
@@ -234,38 +361,22 @@ void * task_do_work_unit(void * task_node) {
          */
         pthread_mutex_unlock(&mutex);
 
-        uint32_t units_run = 0;
+        if (current_task_data->slice_size > 0) {
         /*
          * slice_size == 0 means no cooperative slice was ever configured
          * for this task (task_set_slice clamps to a minimum of 1), so it
          * doubles as the "not in cooperative mode" signal: run the task
          * to completion in a single dispatch instead of capping units_run.
-         *
-         * TODO(Issue #8): once quantum mode lands, this needs its own
-         * condition here too, e.g.
-         * (units_run < current_task_data->slice_size && mode == cooperative)
-         * || (quantum_logic && mode == quantum)
-         * so cooperative and quantum slicing can be toggled independently.
          */
-        while ((current_task_data->slice_size == 0 ||
-                units_run < current_task_data->slice_size) &&
-               current_task_data->work_units_done < current_task_node->work_units) {
-            current_task_data->pi.j++;
-            current_task_data->pi.term *=
-                ((2.0 * (double)current_task_data->pi.j - 1.0) *
-                 (2.0 * (double)current_task_data->pi.j - 1.0)) /
-                ((2.0 * (double)current_task_data->pi.j) *
-                 (2.0 * (double)current_task_data->pi.j + 1.0));
-            if (!isfinite(current_task_data->pi.term) ||
-                !isfinite(current_task_data->pi.sum)) {
-                fprintf(stderr, "Task %u: floating point overflow in pi computation at j=%" PRIu64 "\n",
-                        current_task_data->id, current_task_data->pi.j);
-                break;
-            }
-            current_task_data->pi.sum += 2.0 * current_task_data->pi.term;
-            current_task_data->work_units_done++;
-            units_run++;
+            task_do_pi_calc_by_slice_units(current_task_node, current_task_data);
+        } else if (quantum > 0) {
+            task_do_pi_calc_by_quantum_units(current_task_node, current_task_data, quantum);
+        } else {
+            // This should never happen since we validate the parameters
+            fprintf(stderr, "Failure: not mode chosen, exit main task loop");
+            return NULL;
         }
+
 
         /*
          * Now that the worker is holding the mutex lets leverage on
@@ -278,7 +389,20 @@ void * task_do_work_unit(void * task_node) {
         } else {
             current_task_data->state = TASK_READY;
         }
+
+        /*
+         * This will notify the scheduler that the RUNNING task is
+         * now in FINISHED state, so the scheduler wakes up and
+         * then will be able to do the lottery once again.
+         */
         pthread_cond_broadcast(&state_cond);
+
+        /*
+         * Releasing the lock so the scheduler can acquire the
+         * the lock and do the operations it requires to change
+         * another task into the chosen one and mark it in the
+         * RUNNING state.
+         */
         pthread_mutex_unlock(&mutex);
     }
     return NULL;

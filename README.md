@@ -9,8 +9,10 @@
 - `make test`: builds and executes the scheduler with the default `main` entry point.
 - `make asan`: builds the program with AddressSanitizer enabled.
 - `make asan_cooperative`: runs the ASan build in cooperative mode with the sample cooperative command.
+- `make asan_quantum`: runs the ASan build in quantum mode with the sample quantum command.
 - `make tsan`: builds the program with ThreadSanitizer enabled.
 - `make tsan_cooperative`: runs the TSan build in cooperative mode with the sample cooperative command.
+- `make tsan_quantum`: runs the TSan build in quantum mode with the sample quantum command.
 
 # Unit test directives
 
@@ -55,9 +57,19 @@ The scheduler accepts the following flags:
 make asan_cooperative
 ```
 
+## ASan quantum mode
+```bash
+make asan_quantum
+```
+
 ## TSan cooperative mode
 ```bash
 make tsan_cooperative
+```
+
+## TSan quantum mode
+```bash
+make tsan_quantum
 ```
 
 # Scheduler sequence
