@@ -1,10 +1,45 @@
-# Authors
-- Edgar Chaves. 2017239281. Edjchg
-- Esteban Ureña. 201025605. Eur
+# Lottery Scheduler
+
+Lottery scheduler project for the Advanced Operating Systems course.
+
+## Contributors
+
+| Full name | Student ID | GitHub username |
+|---|---:|---|
+| Edgar Chaves González | 2017239281 | [Edjchg](https://github.com/Edjchg) |
+| Esteban Ureña | 201025605 | [Eur](https://github.com/Eur) |
+
+## Tested development environment
+
+- Ubuntu running through WSL2.
+- (Eur's env)
+- GCC with C17 support and GNU Make.
+- POSIX threads (`pthread`).
+- AddressSanitizer and ThreadSanitizer for the checks defined in the Makefile.
+
+## Build and execution
+
+From the repository root:
+
+```bash
+make all
+```
+Or
+
+```bash
+make lottery_scheduler
+```
+
+
+This command generates `lottery_scheduler`. To remove generated files:
+
+```bash
+make clean
+```
 
 # Project build directives with Make
 
-- `make all`: compiles the main scheduler binary `lottery_scheduler`.
+- `make all/lottery_scheduler`: compiles the main scheduler binary `lottery_scheduler`.
 - `make clean`: removes compiled binaries and sanitizer artifacts.
 - `make test`: builds and executes the scheduler with the default `main` entry point.
 - `make asan`: builds the program with AddressSanitizer enabled.
@@ -40,6 +75,29 @@ The scheduler accepts the following flags:
 - `-d, --max-dispatches N`: maximum number of scheduler dispatches.
 - `-h, --help`: prints the available options and usage examples.
 
+`--input`, `--mode`, and `--seed` are required. `--quantum` is required in
+`quantum` mode; `--slice-percent` is required in `cooperative` mode. The
+`--log` and `--summary` files are optional. When specified, missing parent
+directories are created automatically.
+
+# Input CSV format
+
+The input file must include a header row and between 5 and 25 tasks. Each row
+contains three positive integers separated by commas:
+
+```csv
+task_id,tickets,work_units
+1,1,1
+2,1,1
+3,1,1
+4,1,1
+5,5,1000000000
+```
+
+`task_id` must be unique. `tickets` determines the probability of winning the
+lottery, and `work_units` is the amount of work assigned to the task. The
+example is available in `tests/base.csv`.
+
 # Example executions
 
 ## Quantum mode
@@ -71,6 +129,66 @@ make tsan_cooperative
 ```bash
 make tsan_quantum
 ```
+
+# Repository structure
+
+```text
+include/                    Public project headers
+src/                        Parser, scheduler, logger, and task implementation
+tests/base.csv              Example CSV input
+tests/validation_error.csv  Input for validation tests
+tests/unit_tests/           Unit tests and their Makefile
+results/                    Example CSV results
+scripts/                    Experiment scripts
+Makefile                    Build, test, and sanitizer targets
+README.md                   Project documentation
+```
+
+```text
+SOA-P1-GrupoCU/
+├── Makefile
+├── README.md
+├── include
+│   ├── double_linked_list.h
+│   ├── error_def.h
+│   ├── logger.h
+│   ├── parser.h
+│   ├── rng.h
+│   ├── scheduler.h
+│   └── task.h
+├── scripts
+│   └── run_experiment.sh
+├── src
+│   ├── double_linked_list.c
+│   ├── logger.c
+│   ├── main.c
+│   ├── parser.c
+│   ├── rng.c
+│   ├── scheduler.c
+│   └── task.c
+└── tests
+    ├── base.csv
+    ├── unit_tests
+    │   ├── Makefile
+    │   ├── include
+    │   │   └── unit_test_infra.h
+    │   ├── test_cooperative.c
+    │   ├── test_dll.c
+    │   ├── test_parser.c
+    │   ├── test_rng.c
+    │   └── test_summary.c
+    └── validation_error.csv
+
+6 directories, 26 files
+```
+
+# Delivery reference
+
+- Repository: [Eur/SOA-P1-GrupoCU](https://github.com/Eur/SOA-P1-GrupoCU)
+- Delivery tag: `p1-entrega` (reference only; it is not created by this update).
+- Reference commit: `21117e50b84da8d293e2def49516ed7486d4fdc4`.
+
+The tag and delivery commit are not created or modified as part of this update.
 
 # Scheduler sequence
 
@@ -123,8 +241,3 @@ The scheduler then chooses one task based on the lottery algorithm. It wakes all
 
 The scheduler retakes the lock and repeat the lottery. When no remaining tasks, or the max dispatches has been reached, then the main loop ends.
 
-# Notes
-
-- The scheduler validates that required parameters are present and rejects invalid values.
-- The `--log` flag is optional, but when provided the directory must already exist.
-- `--summary` is also required for the execution summary output, as enforced by the parser.
