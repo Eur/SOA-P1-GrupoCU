@@ -217,8 +217,19 @@ void scheduler_main_loop(struct node *task_list_head) {
         }
 
         task_t * data_from_task = (task_t *)winner_task->data;
-
-       
+        uint32_t units_before = data_from_task->work_units_done;
+        // TODO: Lets re-design how we can log before/after task details
+        LOG_EVENT(
+            "dispatch=%" PRIu32 ", winner_id=%" PRIu32
+            ", winning_ticket=%" PRIu32 ", active_tickets=%" PRIu64
+            ", run_units=%" PRIu32 ", completed_units=%" PRIu32 ", state_after=%s",
+            global_dispatch,
+            winner_task->id,
+            winner_ticket,
+            cumulative_ticket_sum,
+            data_from_task->work_units_done - units_before,
+            data_from_task->work_units_done,
+            task_state_enum_to_str(data_from_task->state));
 
         /*
          * Move the new winner task from READY to
@@ -232,22 +243,8 @@ void scheduler_main_loop(struct node *task_list_head) {
          * at the begining of this loop where this
          * thread is set to wait.
          */
-        uint32_t units_before = data_from_task->work_units_done;
         task_transition_to_running(data_from_task, global_dispatch);
-        
-        scheduler_main_thread_waits_until_no_running_workers(task_list_head);
 
-        LOG_EVENT(
-            "dispatch=%" PRIu32 ", winner_id=%" PRIu32
-            ", winning_ticket=%" PRIu32 ", active_tickets=%" PRIu64
-            ", run_units=%" PRIu32 ", completed_units=%" PRIu32 ", state_after=%s",
-            global_dispatch,
-            winner_task->id,
-            winner_ticket,
-            cumulative_ticket_sum,
-            data_from_task->work_units_done - units_before,
-            data_from_task->work_units_done,
-            task_state_enum_to_str(data_from_task->state));
         global_dispatch++;
     }
 }

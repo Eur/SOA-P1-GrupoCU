@@ -31,6 +31,9 @@ ASAN_OBJECTS := $(SOURCES:.c=.asan.o)
 asan: $(ASAN_TARGET)
 	export ASAN_OPTIONS=log_path=./asan_report:detect_leaks=1; ./$(ASAN_TARGET)
 
+asan_cooperative: $(ASAN_TARGET)
+	export ASAN_OPTIONS=log_path=./asan_report:detect_leaks=1; ./$(ASAN_TARGET) --input tests/base.csv --mode cooperative --slice-percent 10 --seed 2026 --summary results/base_summary.csv
+
 $(ASAN_TARGET): $(ASAN_OBJECTS)
 	$(CC) $(ASAN_CFLAGS) $(ASAN_OBJECTS) -o $@
 
@@ -45,6 +48,9 @@ TSAN_OBJECTS := $(SOURCES:.c=.tsan.o)
 
 tsan: $(TSAN_TARGET)
 	TSAN_OPTIONS=log_path=./tsan_report:halt_on_error=1 ./$(TSAN_TARGET)
+
+tsan_cooperative: $(TSAN_TARGET)
+	TSAN_OPTIONS=log_path=./tsan_report:halt_on_error=1 ./$(TSAN_TARGET) --input tests/base.csv --mode cooperative --slice-percent 10 --seed 2026 --summary results/base_summary.csv
 
 $(TSAN_TARGET): $(TSAN_OBJECTS)
 	$(CC) $(TSAN_CFLAGS) $(TSAN_OBJECTS) -o $@
