@@ -33,12 +33,6 @@ static pthread_cond_t state_cond  = PTHREAD_COND_INITIALIZER;
  */
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static uint32_t quantum = 0;
-
-void task_configure_quantum(const uint32_t user_quantum) {
-    quantum = user_quantum;
-}
-
 task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
 {
     task_t *task = (task_t *)malloc(sizeof(task_t));
