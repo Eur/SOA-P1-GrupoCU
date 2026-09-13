@@ -60,6 +60,42 @@ make asan_cooperative
 make tsan_cooperative
 ```
 
+# Scheduler sequence
+
+
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Main as Scheduler Main Thread
+    participant TaskA as Task 1
+    participant TaskB as Task 2
+    participant TaskC as Task 3
+    participant TaskN as Task N
+
+    TaskA->>TaskA: Sleeping in State: READY
+    TaskB->>TaskB: Sleeping in State: READY
+    TaskC->>TaskC: Sleeping in State: READY
+    TaskN->>TaskN: Sleeping in State: READY
+    Main->>TaskA: Lottery Broadcast Winner task (Ready->Running)
+    Main->>Main: Sleeping until winner task ends
+    TaskA->>TaskA: Executing Calcs
+    TaskA->>Main: Setting state: READY | Wake Scheduler
+    TaskA->>TaskA: Sleeping in State: READY
+    Main->>TaskB: Lottery Broadcast Winner task (Ready->Running)
+    Main->>Main: Sleeping until winner task ends
+    TaskB->>TaskB: Executing Calcs
+    TaskB->>Main: Setting state: READY | Wake Scheduler
+    TaskB->>TaskB: Sleeping in State: READY
+    
+```
+
+From the Sequence Diagram, it is visible that at the begining, all N tasks remain in READY state, which means they are ready to start executing. All these N tasks are sleeping, waiting for the scheduler to choose among them. 
+
+The scheduler then chooses one task based on the lottery algorithm. This task goes from READY to RUNNING, and start its execution. When it ends, it decides if it has finished or not, and notify this to the scheduler.
+
+The scheduler retakes the lock and repeat the lottery. When no remaining tasks, or the max dispatches has been reached, then the main loop ends.
+
 # Notes
 
 - The scheduler validates that required parameters are present and rejects invalid values.
