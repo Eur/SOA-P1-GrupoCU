@@ -87,12 +87,27 @@ sequenceDiagram
     TaskB->>TaskB: Executing Calcs
     TaskB->>Main: Setting state: READY | Wake Scheduler
     TaskB->>TaskB: Sleeping in State: READY
+    Main->>TaskN: Lottery Broadcast Winner task (Ready->Running)
+    TaskN->>TaskN: Executing Calcs
+    TaskN->>Main: Setting state: FINISHED | Wake Scheduler
+    TaskN->>TaskN: Thread finished
+    TaskN->>Main: Notify Scheduler
     
+    Main->Main: ... Waiting for all tasks in state FINISHED ...
+
+    TaskC->>TaskC: Thread finished
+    TaskC->>Main: Notify Scheduler
+    TaskB->>TaskB: Thread finished
+    TaskB->>Main: Notify Scheduler
+    TaskA->>TaskA: Thread finished
+    TaskA->>Main: Notify Scheduler
+
+
 ```
 
 From the Sequence Diagram, it is visible that at the begining, all N tasks remain in READY state, which means they are ready to start executing. All these N tasks are sleeping, waiting for the scheduler to choose among them. 
 
-The scheduler then chooses one task based on the lottery algorithm. This task goes from READY to RUNNING, and start its execution. When it ends, it decides if it has finished or not, and notify this to the scheduler.
+The scheduler then chooses one task based on the lottery algorithm. It wakes all threads to make them reevaluate if they are the chosen on. The chosen/winner task goes from READY to RUNNING, and start its execution, the rest of the threads remain in sleeping state. When the winner task ends, it decides if it has finished or not, and notify this to the scheduler.
 
 The scheduler retakes the lock and repeat the lottery. When no remaining tasks, or the max dispatches has been reached, then the main loop ends.
 
