@@ -34,7 +34,6 @@ int main(int argc, char *argv[]) {
     if (strcmp(mode, "cooperative") == 0) {
         scheduler_configure_cooperative(task_list_head, parser_slice_percentage_get());
     }
-    /* quantum: Issue #8 */
 
     logger_init_structure(log_event_path, summary_file_path);
 

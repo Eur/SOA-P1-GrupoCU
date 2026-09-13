@@ -86,28 +86,6 @@ static int parser_is_existing_input_file(const char *path)
            stat(path, &path_info) == 0 && S_ISREG(path_info.st_mode);
 }
 
-static int parser_has_existing_parent_directory(const char *path)
-{
-    char *last_separator;
-    char parent_path[LINE_BUF];
-    struct stat path_info;
-
-    if (!parser_is_valid_path_string(path) || strlen(path) >= sizeof(parent_path)) {
-        return 0;
-    }
-
-    strcpy(parent_path, path);
-    last_separator = strrchr(parent_path, '/');
-    if (last_separator == NULL) {
-        strcpy(parent_path, ".");
-    } else if (last_separator == parent_path) {
-        last_separator[1] = '\0';
-    } else {
-        *last_separator = '\0';
-    }
-
-    return stat(parent_path, &path_info) == 0 && S_ISDIR(path_info.st_mode);
-}
 
 int parser_load(const char *filename, struct node **head)
 {
@@ -256,14 +234,13 @@ static int parser_parameter_validation(void) {
         return 1;
     }
 
-    if (!parser_has_existing_parent_directory(summary_file_path)) {
-        parser_show_help_on_missing_param("--summary");
+    if (log_events_path != NULL && !parser_is_valid_path_string(log_events_path)) {
+        parser_show_help_on_missing_param("--log");
         return 1;
     }
 
-    if (log_events_path != NULL &&
-        !parser_has_existing_parent_directory(log_events_path)) {
-        parser_show_help_on_missing_param("--log");
+    if (summary_file_path != NULL && !parser_is_valid_path_string(summary_file_path)) {
+        parser_show_help_on_missing_param("--summary");
         return 1;
     }
 
