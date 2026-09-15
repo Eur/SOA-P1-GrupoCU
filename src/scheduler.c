@@ -218,18 +218,28 @@ void scheduler_main_loop(struct node *task_list_head) {
 
         task_t * data_from_task = (task_t *)winner_task->data;
         uint32_t units_before = data_from_task->work_units_done;
-        // TODO: Lets re-design how we can log before/after task details
+        uint32_t work_units_remaining = data_from_task->work_units - units_before;
+
+        /*
+         * Register the decision before waking the winning task
+         * (Issue 9): dispatch, winner and the ticket data that
+         * produced it, captured here so nothing about the draw
+         * itself depends on the task having run yet.
+         *
+         * work_units_remaining is how much work THIS winner task
+         * still has pending before this dispatch runs, so following
+         * it dispatch over dispatch (for a given winner_id) shows
+         * that task's own workload draining toward zero.
+         */
         LOG_EVENT(
             "dispatch=%" PRIu32 ", winner_id=%" PRIu32
             ", winning_ticket=%" PRIu32 ", active_tickets=%" PRIu64
-            ", run_units=%" PRIu32 ", completed_units=%" PRIu32 ", state_after=%s",
+            ", work_units_remaining=%" PRIu32,
             global_dispatch,
             winner_task->id,
             winner_ticket,
             cumulative_ticket_sum,
-            data_from_task->work_units_done - units_before,
-            data_from_task->work_units_done,
-            task_state_enum_to_str(data_from_task->state));
+            work_units_remaining);
 
         /*
          * Move the new winner task from READY to
@@ -244,6 +254,34 @@ void scheduler_main_loop(struct node *task_list_head) {
          * thread is set to wait.
          */
         task_transition_to_running(data_from_task, global_dispatch);
+
+        /*
+         * Now wait for the winning task to actually run its
+         * slice, so the second log line below can report the
+         * real outcome of this dispatch.
+         */
+        scheduler_main_thread_waits_until_no_running_workers(task_list_head);
+
+        /*
+         * tickets_after is recomputed post-run (rather than reused
+         * from before the dispatch) so a future ticket-compensation
+         * mechanism shows up here as a before/after delta.
+         * work_units_remaining_after is this same winner task's own
+         * pending work recalculated after this dispatch, so the two
+         * work_units_remaining fields together show that task's
+         * workload draining down over the run.
+         */
+        LOG_EVENT(
+            "dispatch=%" PRIu32 ", winner_id=%" PRIu32
+            ", run_units=%" PRIu32 ", completed_units=%" PRIu32 ", state_after=%s"
+            ", tickets_after=%" PRIu32 ", work_units_remaining_after=%" PRIu32,
+            global_dispatch,
+            winner_task->id,
+            data_from_task->work_units_done - units_before,
+            data_from_task->work_units_done,
+            task_state_enum_to_str(data_from_task->state),
+            winner_task->tickets,
+            data_from_task->work_units - data_from_task->work_units_done);
 
         global_dispatch++;
     }
