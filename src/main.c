@@ -30,9 +30,11 @@ int main(int argc, char *argv[]) {
     if (task_list_head == NULL) {
         return 1;
     }
-
     if (strcmp(mode, "cooperative") == 0) {
         scheduler_configure_cooperative(task_list_head, parser_slice_percentage_get());
+    } 
+    else if (strcmp(mode, "quantum") == 0) {
+        scheduler_configure_quantum(task_list_head, parser_quantum_get());
     }
 
     logger_init_structure(log_event_path, summary_file_path);

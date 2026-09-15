@@ -56,6 +56,8 @@ typedef struct {
     task_state_t state;
     pi_state_t pi;
     pthread_mutex_t mutex;
+    double   yield_fraction;      /* fraction of the quantum that is used before yielding (1.0 = complete) */
+    uint32_t effective_tickets;   /* tickets with compensation; reset when winning */
 } task_t;
 
 /**
@@ -65,7 +67,7 @@ typedef struct {
  *
  * @return Pointer to the new task, or NULL on allocation failure.
  */
-task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units);
+task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units, double yield_fraction);
 
 /**
  * @brief Destroys a task by destroying its mutex and freeing the memory.

@@ -23,7 +23,8 @@ static uint64_t scheduler_calculate_cumulutive_tickets(struct node * head) {
          * ready to be scheduled.
          */
         if (task_is_eligible(current_node->data)) {
-            cumulative_ticket_sum += current_node->tickets;
+            task_t *t = (task_t *)current_node->data;
+            cumulative_ticket_sum += t->effective_tickets;
         }
     }
 
@@ -71,7 +72,8 @@ static struct node * scheduler_winner_task(struct node * head, uint32_t winner_t
     uint64_t cumulative_ticket_sum = 0;
     FOR_EACH_NODE(head, current_node) {
         if (task_is_eligible(current_node->data)) {
-            cumulative_ticket_sum += current_node->tickets;
+            task_t *t = (task_t *)current_node->data;
+            cumulative_ticket_sum += t->effective_tickets;
 
             if (cumulative_ticket_sum >= winner_ticket) {
                 return current_node;
@@ -129,6 +131,14 @@ void scheduler_configure_cooperative(struct node *task_list_head, float percent)
     }
 }
 
+
+void scheduler_configure_quantum(struct node *task_list_head, uint32_t quantum) {
+    uint32_t q = (quantum >= 1) ? quantum : 1;
+    FOR_EACH_NODE(task_list_head, current_node) {
+        task_t *t = (task_t *)current_node->data;
+        task_set_slice(t, q);
+    }
+}
 
 void scheduler_main_loop(struct node *task_list_head) {
     uint32_t global_dispatch = 1;
@@ -253,6 +263,7 @@ void scheduler_main_loop(struct node *task_list_head) {
          * at the begining of this loop where this
          * thread is set to wait.
          */
+        data_from_task->effective_tickets = data_from_task->tickets; /* reset compensación */
         task_transition_to_running(data_from_task, global_dispatch);
 
         /*
@@ -282,7 +293,17 @@ void scheduler_main_loop(struct node *task_list_head) {
             task_state_enum_to_str(data_from_task->state),
             winner_task->tickets,
             data_from_task->work_units - data_from_task->work_units_done);
-
+        /* Compensación: si la tarea cedió antes de terminar su quantum */
+        if (parser_compensation_get() &&
+            task_is_eligible(data_from_task) &&
+            data_from_task->yield_fraction < 1.0) {
+            uint64_t comp = (uint64_t)round(
+                (double)data_from_task->tickets / data_from_task->yield_fraction);
+            data_from_task->effective_tickets =
+                (comp > UINT32_MAX) ? UINT32_MAX : (uint32_t)comp;
+        } else {
+            data_from_task->effective_tickets = data_from_task->tickets;
+        }
         global_dispatch++;
     }
 }

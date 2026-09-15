@@ -102,4 +102,7 @@ uint32_t parser_max_dispatches_get(void);
  */
 char * parser_input_path_get(void);
 
+void parser_compensation_set(bool val);
+bool parser_compensation_get(void);
+
 #endif /* PARSER_H */

@@ -33,7 +33,7 @@ static pthread_cond_t state_cond  = PTHREAD_COND_INITIALIZER;
  */
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
+task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units, double yield_fraction)
 {
     task_t *task = (task_t *)malloc(sizeof(task_t));
     if (task == NULL) {
@@ -52,6 +52,8 @@ task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
     task->pi.sum = 2.0;
     task->pi.term = 1.0;
     task->pi.j = 0;
+    task->yield_fraction    = (yield_fraction > 0.0 && yield_fraction <= 1.0) ? yield_fraction : 1.0;
+    task->effective_tickets = tickets;
     int err = pthread_mutex_init(&task->mutex, NULL);
     if (err != 0) {
         fprintf(stderr, "Error initializing mutex for task: %s\n", strerror(err));
@@ -263,7 +265,10 @@ static bool task_do_one_working_unit(task_t * current_task_data) {
  */
 static void task_do_pi_calc_by_slice_units(struct node * current_task_node, task_t * current_task_data) {
     uint32_t units_run = 0;
-        while ((units_run < current_task_data->slice_size) &&
+    uint32_t early_limit = (uint32_t)ceil(
+    (double)current_task_data->slice_size * current_task_data->yield_fraction);
+    if (early_limit < 1) early_limit = 1;
+        while ((units_run < early_limit) &&
                current_task_data->work_units_done < current_task_node->work_units) {
 
             if (task_do_one_working_unit(current_task_data) == false) {

@@ -61,4 +61,15 @@ bool scheduler_deinit(struct node *task_list_head);
 
 bool scheduler_has_running_task(struct node *task_list_head);
 
+/**
+ * @brief Configures quantum mode (--quantum Q).
+ *
+ * @details Sets slice_size = Q for every task.
+ *          Must be called before scheduler_main_loop.
+ *
+ * @param task_list_head  List returned by scheduler_init.
+ * @param quantum         Value of Q from --quantum.
+ */
+void scheduler_configure_quantum(struct node *task_list_head, uint32_t quantum);
+
 #endif // SCHEDULER_H

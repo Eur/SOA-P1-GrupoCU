@@ -23,6 +23,11 @@ static uint32_t seed = 0;
 static char * log_events_path;
 static char * summary_file_path;
 static uint32_t max_dispatches = 0;
+static bool g_compensation = false;
+
+
+void parser_compensation_set(bool val) { g_compensation = val; }
+bool parser_compensation_get(void)     { return g_compensation; }
 
 static int parser_parse_uint32(const char *value, uint32_t *result)
 {
@@ -127,11 +132,28 @@ int parser_load(const char *filename, struct node **head)
         }
 
         long id_line, tickets_line, work_units_line;
-        if(sscanf(line, "%ld,%ld,%ld", &id_line, &tickets_line, &work_units_line) != 3) {
+        double yield_fraction = 1.0;
+        int fields = sscanf(line, "%ld,%ld,%ld,%lf",
+                            &id_line, &tickets_line, &work_units_line, &yield_fraction);
+        if (fields < 3) {
             fprintf(stderr,
                     "Parser: invalid format at line %d: '%s'\n"
                     "        expected: task_id,tickets,work_units\n",
                     lineno, line);
+            goto err;
+        }
+        if (fields == 4 && (yield_fraction <= 0.0 || yield_fraction > 1.0)) {
+            fprintf(stderr,
+                    "Parser: yield_fraction %.4f out of range at line %d"
+                    " (must be > 0.0 and <= 1.0)\n",
+                    yield_fraction, lineno);
+            goto err;
+        }
+        if (fields == 4 && yield_fraction < 0.1) {
+            fprintf(stderr,
+                    "Parser: yield_fraction %.4f too small at line %d"
+                    " (minimum allowed is 0.1)\n",
+                    yield_fraction, lineno);
             goto err;
         }
 
@@ -182,7 +204,7 @@ int parser_load(const char *filename, struct node **head)
          * NOTE: This should be freed inside the
          * double linked list infraestructure.
          */
-        task_t *task = task_create(id, tickets, work_units);
+        task_t *task = task_create(id, tickets, work_units, yield_fraction);
         if(!dll_insert_node(head, task, id, tickets, work_units)) {
             fprintf(stderr, "Parser: failed to insert node at line %d: '%s'\n", lineno, line);
             goto err;
@@ -259,6 +281,7 @@ int parser_parameter_get(int argc, char *argv[]) {
         {"summary", required_argument, NULL, 'z'},
         {"max-dispatches", required_argument, NULL, 'd'},
         {"help", no_argument, NULL, 'h'},
+        {"compensation", no_argument, NULL, 'c'},
         {0, 0, 0, 0},
     };
 
@@ -312,6 +335,9 @@ int parser_parameter_get(int argc, char *argv[]) {
                         parser_show_help_on_missing_param("--max-dispatches");
                         return 1;
                 }
+                break;
+            case 'c':
+                parser_compensation_set(true);
                 break;
             case 'h':
                 parser_show_help_on_missing_param(NULL);
