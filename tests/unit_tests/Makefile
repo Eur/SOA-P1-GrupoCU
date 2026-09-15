@@ -13,12 +13,15 @@ TEST_RNG_SRCS := test_rng.c ../../src/rng.c
 TEST_SUMMARY := /tmp/test_summary
 TEST_SUMMARY_SRCS := test_summary.c \
                      ../../src/task.c \
+                     ../../src/parser.c \
                      ../../src/double_linked_list.c \
                      ../../src/logger.c
 
 TEST_COOPERATIVE := /tmp/test_cooperative
 TEST_COOPERATIVE_SRCS := test_cooperative.c \
-                         ../../src/task.c
+                         ../../src/task.c \
+                         ../../src/parser.c \
+                         ../../src/double_linked_list.c
 all: test_parser test_dll test_rng test_summary test_cooperative
 
 clean: clean_test_parser clean_test_dll clean_test_rng clean_test_summary clean_test_cooperative
