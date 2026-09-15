@@ -204,7 +204,7 @@ int parser_load(const char *filename, struct node **head)
          * NOTE: This should be freed inside the
          * double linked list infraestructure.
          */
-        task_t *task = task_create(id, tickets, work_units, yield_fraction);
+        task_t *task = task_create(id, tickets, work_units, (float)yield_fraction);
         if(!dll_insert_node(head, task, id, tickets, work_units)) {
             fprintf(stderr, "Parser: failed to insert node at line %d: '%s'\n", lineno, line);
             goto err;

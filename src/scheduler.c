@@ -190,14 +190,24 @@ void scheduler_main_loop(struct node *task_list_head) {
 
         /*
          * tickets_after is recomputed post-run (rather than reused
-         * from before the dispatch) so a future ticket-compensation
-         * mechanism shows up here as a before/after delta.
+         * from before the dispatch) so the ticket-compensation
+         * mechanism below shows up here as a before/after delta.
          * work_units_remaining_after is this same winner task's own
          * pending work recalculated after this dispatch, so the two
          * work_units_remaining fields together show that task's
          * workload draining down over the run.
          */
         if (has_pending_after_log) {
+            /*
+             * Compensation: if the task yielded before finishing its
+             * quantum/slice this dispatch, boost its effective_tickets
+             * for future draws (see task_apply_compensation). This runs
+             * here, rather than right after task_transition_to_running,
+             * because only at this point has the task actually reported
+             * back and released control of its own fields.
+             */
+            task_apply_compensation(data_from_task, parser_compensation_get());
+
             LOG_EVENT(
                 "dispatch=%" PRIu32 ", winner_id=%" PRIu32
                 ", run_units=%" PRIu32 ", completed_units=%" PRIu32 ", state_after=%s"
@@ -207,7 +217,7 @@ void scheduler_main_loop(struct node *task_list_head) {
                 data_from_task->work_units_done - units_before,
                 data_from_task->work_units_done,
                 task_state_enum_to_str(data_from_task->state),
-                winner_task->tickets,
+                data_from_task->effective_tickets,
                 data_from_task->work_units - data_from_task->work_units_done);
             has_pending_after_log = false;
         }
@@ -308,19 +318,14 @@ void scheduler_main_loop(struct node *task_list_head) {
         task_transition_to_running(data_from_task, global_dispatch);
 
         /*
-         * Compensación: si la tarea cedió antes de terminar su
-         * quantum, boost its effective_tickets for future draws.
-         * yield_fraction is a static per-task parameter (parsed at
-         * load time), so this can be computed right away without
-         * waiting for the task to actually finish running.
-        */
-        task_apply_compensation(data_from_task, parser_compensation_get());
-
-        /*
-         * Defer the "result" log line to the top of the next loop
-         * iteration (right after the single wait call), so it can
-         * report the real post-run outcome of this dispatch without
-         * needing a second explicit wait here.
+         * Defer both the ticket compensation and the "result" log
+         * line to the top of the next loop iteration (right after the
+         * single wait call). At that point the task has reported back
+         * (READY or FINISHED) and no worker thread is RUNNING, so the
+         * scheduler is again the sole owner of data_from_task's
+         * fields; applying compensation here, while the task is still
+         * transitioning to RUNNING, would do so before the dispatch
+         * it is meant to react to has actually happened.
          */
         has_pending_after_log = true;
         pending_dispatch_number = global_dispatch;
