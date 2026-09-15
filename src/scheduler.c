@@ -135,6 +135,24 @@ void scheduler_main_loop(struct node *task_list_head) {
 
     bool remaining_tasks = true;
     uint32_t max_dispatches = parser_max_dispatches_get();
+
+    /*
+     * These describe the dispatch that was just waited on at the
+     * top of this iteration (dispatched in the PREVIOUS iteration),
+     * so the "after" log line below can report its outcome without
+     * a second, redundant wait right after task_transition_to_running.
+     * has_pending_after_log is what guards this: it is set once a
+     * task is actually dispatched, and cleared right after the log
+     * line fires, so a loop pass that hits a `continue` without
+     * dispatching anything new (e.g. cumulative_ticket_sum == 0)
+     * does not re-log the same dispatch a second time.
+     */
+    bool has_pending_after_log = false;
+    uint32_t pending_dispatch_number = 0;
+    struct node *winner_task = NULL;
+    task_t *data_from_task = NULL;
+    uint32_t units_before = 0;
+
     while (remaining_tasks) {
 
         /*
@@ -159,6 +177,30 @@ void scheduler_main_loop(struct node *task_list_head) {
          * be mid-flight and about to release the mutex.
          */
         scheduler_main_thread_waits_until_no_running_workers(task_list_head);
+
+        /*
+         * tickets_after is recomputed post-run (rather than reused
+         * from before the dispatch) so a future ticket-compensation
+         * mechanism shows up here as a before/after delta.
+         * work_units_remaining_after is this same winner task's own
+         * pending work recalculated after this dispatch, so the two
+         * work_units_remaining fields together show that task's
+         * workload draining down over the run.
+         */
+        if (has_pending_after_log) {
+            LOG_EVENT(
+                "dispatch=%" PRIu32 ", winner_id=%" PRIu32
+                ", run_units=%" PRIu32 ", completed_units=%" PRIu32 ", state_after=%s"
+                ", tickets_after=%" PRIu32 ", work_units_remaining_after=%" PRIu32,
+                pending_dispatch_number,
+                winner_task->id,
+                data_from_task->work_units_done - units_before,
+                data_from_task->work_units_done,
+                task_state_enum_to_str(data_from_task->state),
+                winner_task->tickets,
+                data_from_task->work_units - data_from_task->work_units_done);
+            has_pending_after_log = false;
+        }
 
         if (max_dispatches > 0 && global_dispatch > max_dispatches) {
             task_shutdown_all(task_list_head);
@@ -209,27 +251,37 @@ void scheduler_main_loop(struct node *task_list_head) {
          * the winner task, so we get a pointer, pointing
          * to that winner task:
          */
-        struct node *winner_task = scheduler_winner_task(task_list_head, winner_ticket);
+        winner_task = scheduler_winner_task(task_list_head, winner_ticket);
 
         if (winner_task == NULL) {
             fprintf(stdout, "Scheduler: No eligible tasks to schedule\n");
             break;
         }
 
-        task_t * data_from_task = (task_t *)winner_task->data;
-        uint32_t units_before = data_from_task->work_units_done;
-        // TODO: Lets re-design how we can log before/after task details
+        data_from_task = (task_t *)winner_task->data;
+        units_before = data_from_task->work_units_done;
+        uint32_t work_units_remaining = data_from_task->work_units - units_before;
+
+        /*
+         * Register the decision before waking the winning task
+         * (Issue 9): dispatch, winner and the ticket data that
+         * produced it, captured here so nothing about the draw
+         * itself depends on the task having run yet.
+         *
+         * work_units_remaining is how much work THIS winner task
+         * still has pending before this dispatch runs, so following
+         * it dispatch over dispatch (for a given winner_id) shows
+         * that task's own workload draining toward zero.
+         */
         LOG_EVENT(
             "dispatch=%" PRIu32 ", winner_id=%" PRIu32
             ", winning_ticket=%" PRIu32 ", active_tickets=%" PRIu64
-            ", run_units=%" PRIu32 ", completed_units=%" PRIu32 ", state_after=%s",
+            ", work_units_remaining=%" PRIu32,
             global_dispatch,
             winner_task->id,
             winner_ticket,
             cumulative_ticket_sum,
-            data_from_task->work_units_done - units_before,
-            data_from_task->work_units_done,
-            task_state_enum_to_str(data_from_task->state));
+            work_units_remaining);
 
         /*
          * Move the new winner task from READY to
@@ -244,6 +296,9 @@ void scheduler_main_loop(struct node *task_list_head) {
          * thread is set to wait.
          */
         task_transition_to_running(data_from_task, global_dispatch);
+
+        has_pending_after_log = true;
+        pending_dispatch_number = global_dispatch;
 
         global_dispatch++;
     }
