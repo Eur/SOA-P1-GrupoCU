@@ -23,7 +23,8 @@ static uint64_t scheduler_calculate_cumulutive_tickets(struct node * head) {
          * ready to be scheduled.
          */
         if (task_is_eligible(current_node->data)) {
-            cumulative_ticket_sum += current_node->tickets;
+            task_t *t = (task_t *)current_node->data;
+            cumulative_ticket_sum += t->effective_tickets;
         }
     }
 
@@ -71,7 +72,8 @@ static struct node * scheduler_winner_task(struct node * head, uint32_t winner_t
     uint64_t cumulative_ticket_sum = 0;
     FOR_EACH_NODE(head, current_node) {
         if (task_is_eligible(current_node->data)) {
-            cumulative_ticket_sum += current_node->tickets;
+            task_t *t = (task_t *)current_node->data;
+            cumulative_ticket_sum += t->effective_tickets;
 
             if (cumulative_ticket_sum >= winner_ticket) {
                 return current_node;
@@ -130,6 +132,14 @@ void scheduler_configure_cooperative(struct node *task_list_head, float percent)
 }
 
 
+void scheduler_configure_quantum(struct node *task_list_head, uint32_t quantum) {
+    uint32_t q = (quantum >= 1) ? quantum : 1;
+    FOR_EACH_NODE(task_list_head, current_node) {
+        task_t *t = (task_t *)current_node->data;
+        task_set_slice(t, q);
+    }
+}
+
 void scheduler_main_loop(struct node *task_list_head) {
     uint32_t global_dispatch = 1;
 
@@ -180,14 +190,24 @@ void scheduler_main_loop(struct node *task_list_head) {
 
         /*
          * tickets_after is recomputed post-run (rather than reused
-         * from before the dispatch) so a future ticket-compensation
-         * mechanism shows up here as a before/after delta.
+         * from before the dispatch) so the ticket-compensation
+         * mechanism below shows up here as a before/after delta.
          * work_units_remaining_after is this same winner task's own
          * pending work recalculated after this dispatch, so the two
          * work_units_remaining fields together show that task's
          * workload draining down over the run.
          */
         if (has_pending_after_log) {
+            /*
+             * Compensation: if the task yielded before finishing its
+             * quantum/slice this dispatch, boost its effective_tickets
+             * for future draws (see task_apply_compensation). This runs
+             * here, rather than right after task_transition_to_running,
+             * because only at this point has the task actually reported
+             * back and released control of its own fields.
+             */
+            task_apply_compensation(data_from_task, parser_compensation_get());
+
             LOG_EVENT(
                 "dispatch=%" PRIu32 ", winner_id=%" PRIu32
                 ", run_units=%" PRIu32 ", completed_units=%" PRIu32 ", state_after=%s"
@@ -197,7 +217,7 @@ void scheduler_main_loop(struct node *task_list_head) {
                 data_from_task->work_units_done - units_before,
                 data_from_task->work_units_done,
                 task_state_enum_to_str(data_from_task->state),
-                winner_task->tickets,
+                data_from_task->effective_tickets,
                 data_from_task->work_units - data_from_task->work_units_done);
             has_pending_after_log = false;
         }
@@ -297,6 +317,16 @@ void scheduler_main_loop(struct node *task_list_head) {
          */
         task_transition_to_running(data_from_task, global_dispatch);
 
+        /*
+         * Defer both the ticket compensation and the "result" log
+         * line to the top of the next loop iteration (right after the
+         * single wait call). At that point the task has reported back
+         * (READY or FINISHED) and no worker thread is RUNNING, so the
+         * scheduler is again the sole owner of data_from_task's
+         * fields; applying compensation here, while the task is still
+         * transitioning to RUNNING, would do so before the dispatch
+         * it is meant to react to has actually happened.
+         */
         has_pending_after_log = true;
         pending_dispatch_number = global_dispatch;
 

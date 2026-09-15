@@ -235,7 +235,7 @@ TEST(test_desbordamiento_total_tickets)
 
 TEST(test_task_create_estado_inicial)
 {
-    task_t *task = task_create(0, 1, 1);
+    task_t *task = task_create(0, 1, 1, 1.0);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     ASSERT(task->state           == TASK_READY, "estado inicial debe ser TASK_READY");
     ASSERT(task->dispatches      == 0,          "dispatches debe iniciar en 0");
@@ -247,7 +247,7 @@ TEST(test_task_create_estado_inicial)
 
 TEST(test_task_ready_to_running)
 {
-    task_t *task = task_create(0, 1, 1);
+    task_t *task = task_create(0, 1, 1, 1.0);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     ASSERT(task_transition_to_running(task, 1) == true, "READY -> RUNNING debe ser exitoso");
     ASSERT(task->state      == TASK_RUNNING, "estado debe ser TASK_RUNNING");
@@ -258,7 +258,7 @@ TEST(test_task_ready_to_running)
 
 TEST(test_task_running_to_ready)
 {
-    task_t *task = task_create(0, 1, 1);
+    task_t *task = task_create(0, 1, 1, 1.0);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     task_transition_to_running(task, 1);
     ASSERT(task_transition_to_ready(task) == true, "RUNNING -> READY debe ser exitoso");
@@ -269,7 +269,7 @@ TEST(test_task_running_to_ready)
 
 TEST(test_task_running_to_finished)
 {
-    task_t *task = task_create(0, 1, 1);
+    task_t *task = task_create(0, 1, 1, 1.0);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     task_transition_to_running(task, 1);
     ASSERT(task_transition_to_finished(task) == true, "RUNNING -> FINISHED debe ser exitoso");
@@ -280,7 +280,7 @@ TEST(test_task_running_to_finished)
 
 TEST(test_task_finished_es_terminal)
 {
-    task_t *task = task_create(0, 1, 1);
+    task_t *task = task_create(0, 1, 1, 1.0);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     task_transition_to_running(task, 1);
     task_transition_to_finished(task);
@@ -293,7 +293,7 @@ TEST(test_task_finished_es_terminal)
 
 TEST(test_task_is_eligible)
 {
-    task_t *task = task_create(0, 1, 1);
+    task_t *task = task_create(0, 1, 1, 1.0);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     ASSERT(task_is_eligible(task) == true, "tarea READY debe ser elegible");
     task_transition_to_running(task, 1);
@@ -306,7 +306,7 @@ TEST(test_task_is_eligible)
 
 TEST(test_task_dispatches_acumulan)
 {
-    task_t *task = task_create(0, 1, 1);
+    task_t *task = task_create(0, 1, 1, 1.0);
     ASSERT(task != NULL, "task_create debe retornar un puntero valido");
     task_transition_to_running(task, 1);
     task_transition_to_ready(task);
@@ -320,8 +320,8 @@ TEST(test_task_dispatches_acumulan)
 
 TEST(test_pi_determinism)
 {
-    task_t *a = task_create(0, 1, 1);
-    task_t *b = task_create(0, 1, 1);
+    task_t *a = task_create(0, 1, 1, 1.0);
+    task_t *b = task_create(0, 1, 1, 1.0);
     ASSERT(a != NULL && b != NULL, "task_create debe retornar punteros validos");
 
     for (uint32_t i = 0; i < 1000; i++) {
@@ -341,7 +341,7 @@ TEST(test_pi_determinism)
 
 TEST(test_pi_convergence)
 {
-    task_t *t = task_create(0, 1, 1);
+    task_t *t = task_create(0, 1, 1, 1.0);
     ASSERT(t != NULL, "task_create debe retornar un puntero valido");
 
     for (uint32_t i = 0; i < 1000000; i++)

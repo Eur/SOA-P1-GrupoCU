@@ -102,4 +102,17 @@ uint32_t parser_max_dispatches_get(void);
  */
 char * parser_input_path_get(void);
 
+/**
+ * @brief Sets whether ticket compensation (--compensation) is enabled.
+ *
+ * @param val true to enable compensation, false to disable it.
+ */
+void parser_compensation_set(bool val);
+
+/**
+ * @brief Get whether ticket compensation is enabled.
+ * @return true if --compensation was passed, false otherwise.
+ */
+bool parser_compensation_get(void);
+
 #endif /* PARSER_H */

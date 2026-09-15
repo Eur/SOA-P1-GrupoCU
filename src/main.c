@@ -30,10 +30,13 @@ int main(int argc, char *argv[]) {
     if (task_list_head == NULL) {
         return 1;
     }
-
     if (strcmp(mode, "cooperative") == 0) {
         scheduler_configure_cooperative(task_list_head, parser_slice_percentage_get());
     }
+    /*
+     * Quantum mode needs no per-task setup here: task_do_work_unit
+     * picks task_do_pi_calc_by_quantum_units whenever slice_size is 0
+     */
 
     logger_init_structure(log_event_path, summary_file_path);
 

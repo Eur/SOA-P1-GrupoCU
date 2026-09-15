@@ -33,7 +33,7 @@ static pthread_cond_t state_cond  = PTHREAD_COND_INITIALIZER;
  */
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
+task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units, float yield_fraction)
 {
     task_t *task = (task_t *)malloc(sizeof(task_t));
     if (task == NULL) {
@@ -52,6 +52,8 @@ task_t *task_create(uint32_t id, uint32_t tickets, uint32_t work_units)
     task->pi.sum = 2.0;
     task->pi.term = 1.0;
     task->pi.j = 0;
+    task->yield_fraction    = (yield_fraction > 0.0f && yield_fraction <= 1.0f) ? yield_fraction : 1.0f;
+    task->effective_tickets = tickets;
     int err = pthread_mutex_init(&task->mutex, NULL);
     if (err != 0) {
         fprintf(stderr, "Error initializing mutex for task: %s\n", strerror(err));
@@ -214,6 +216,16 @@ void task_set_slice(task_t *task, uint32_t slice_size) {
     task->slice_size = (slice_size >= 1) ? slice_size : 1;
 }
 
+void task_apply_compensation(task_t *task, bool compensation_enabled) {
+    if (compensation_enabled && task->yield_fraction < 1.0f) {
+        uint64_t comp = (uint64_t)round(
+            (double)task->tickets / (double)task->yield_fraction);
+        task->effective_tickets = (comp > UINT32_MAX) ? UINT32_MAX : (uint32_t)comp;
+    } else {
+        task->effective_tickets = task->tickets;
+    }
+}
+
 /**
  * @brief Executes one work unit of a task's pi calculation.
  *
@@ -251,6 +263,27 @@ static bool task_do_one_working_unit(task_t * current_task_data) {
 }
 
 /**
+ * @brief Computes how many units a task should run in a dispatch before it
+ *        voluntarily yields, given the size of the dispatch (a cooperative
+ *        slice or a quantum) and the task's yield_fraction.
+ *
+ * @details yield_fraction == 1.0f means the task always uses its whole
+ *          allotment; a smaller value means it stops early, which the
+ *          scheduler later compensates for via task_apply_compensation.
+ *         
+ *
+ * @param units_per_dispatch  slice_size (cooperative mode) or quantum
+ *                             (quantum mode).
+ * @param yield_fraction      Fraction of units_per_dispatch the task
+ *                             actually runs before yielding.
+ * @return Number of units to run this dispatch, >= 1.
+ */
+static uint32_t task_compute_early_limit(uint32_t units_per_dispatch, float yield_fraction) {
+    uint32_t early_limit = (uint32_t)ceilf((float)units_per_dispatch * yield_fraction);
+    return (early_limit >= 1) ? early_limit : 1;
+}
+
+/**
  * @brief Executes the task's pi calculation for one cooperative slice.
  *
  * @details Runs no more than the number of units configured in
@@ -263,19 +296,21 @@ static bool task_do_one_working_unit(task_t * current_task_data) {
  */
 static void task_do_pi_calc_by_slice_units(struct node * current_task_node, task_t * current_task_data) {
     uint32_t units_run = 0;
-        while ((units_run < current_task_data->slice_size) &&
-               current_task_data->work_units_done < current_task_node->work_units) {
+    uint32_t early_limit = task_compute_early_limit(
+        current_task_data->slice_size, current_task_data->yield_fraction);
+    while ((units_run < early_limit) &&
+           current_task_data->work_units_done < current_task_node->work_units) {
 
-            if (task_do_one_working_unit(current_task_data) == false) {
-                break;
-            }
-            /*
-             * In this specific dispatch, it has completed
-             * one run, so its global run unit is incremented
-             * to reflect that.
-             */
-            units_run++;
+        if (task_do_one_working_unit(current_task_data) == false) {
+            break;
         }
+        /*
+         * In this specific dispatch, it has completed
+         * one run, so its global run unit is incremented
+         * to reflect that.
+         */
+        units_run++;
+    }
 }
 
 /**
@@ -291,20 +326,22 @@ static void task_do_pi_calc_by_slice_units(struct node * current_task_node, task
  */
 static void task_do_pi_calc_by_quantum_units(struct node * current_task_node, task_t * current_task_data, const uint32_t quantum) {
     uint32_t units_run = 0;
-        while (units_run < quantum && current_task_data->work_units_done < current_task_node->work_units) {
+    uint32_t early_limit = task_compute_early_limit(quantum, current_task_data->yield_fraction);
+    while (units_run < early_limit && current_task_data->work_units_done < current_task_node->work_units) {
 
-            if (task_do_one_working_unit(current_task_data) == false) {
-                break;
-            }
-
-            /*
-             * In this specific dispatch, it has completed
-             * one run, so its global run unit is incremented
-             * to reflect that. The dispatch will end until the
-             * task has reached the quantum.
-             */
-            units_run++;
+        if (task_do_one_working_unit(current_task_data) == false) {
+            break;
         }
+
+        /*
+         * In this specific dispatch, it has completed
+         * one run, so its global run unit is incremented
+         * to reflect that. The dispatch will end until the
+         * task has reached early_limit (its full quantum, unless
+         * yield_fraction makes it yield sooner).
+         */
+        units_run++;
+    }
 }
 
 void * task_do_work_unit(void * task_node) {

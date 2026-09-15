@@ -13,15 +13,28 @@ TEST_RNG_SRCS := test_rng.c ../../src/rng.c
 TEST_SUMMARY := /tmp/test_summary
 TEST_SUMMARY_SRCS := test_summary.c \
                      ../../src/task.c \
+                     ../../src/parser.c \
                      ../../src/double_linked_list.c \
                      ../../src/logger.c
 
 TEST_COOPERATIVE := /tmp/test_cooperative
 TEST_COOPERATIVE_SRCS := test_cooperative.c \
-                         ../../src/task.c
-all: test_parser test_dll test_rng test_summary test_cooperative
+                         ../../src/task.c \
+                         ../../src/parser.c \
+                         ../../src/double_linked_list.c
 
-clean: clean_test_parser clean_test_dll clean_test_rng clean_test_summary clean_test_cooperative
+TEST_QUANTUM := /tmp/test_quantum
+TEST_QUANTUM_SRCS := test_quantum.c \
+                     ../../src/scheduler.c \
+                     ../../src/task.c \
+                     ../../src/parser.c \
+                     ../../src/double_linked_list.c \
+                     ../../src/rng.c \
+                     ../../src/logger.c
+
+all: test_parser test_dll test_rng test_summary test_cooperative test_quantum
+
+clean: clean_test_parser clean_test_dll clean_test_rng clean_test_summary clean_test_cooperative clean_test_quantum
 .PHONY: all clean
 
 ## Parser unit tests
@@ -63,3 +76,11 @@ $(TEST_COOPERATIVE): $(TEST_COOPERATIVE_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 clean_test_cooperative:
 	rm -f $(TEST_COOPERATIVE)
+
+## Quantum mode / ticket compensation unit tests
+test_quantum: $(TEST_QUANTUM)
+	$(TEST_QUANTUM)
+$(TEST_QUANTUM): $(TEST_QUANTUM_SRCS)
+	$(CC) $(CFLAGS) $^ -o $@ -lm
+clean_test_quantum:
+	rm -f $(TEST_QUANTUM)

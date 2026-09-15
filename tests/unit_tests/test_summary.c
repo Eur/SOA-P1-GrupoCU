@@ -21,7 +21,7 @@
 /* ── task_create fields ─────────────────────────────────────── */
 
 TEST(test_task_create_fields) {
-    task_t *t = task_create(7, 3, 100);
+    task_t *t = task_create(7, 3, 100, 1.0);
     ASSERT(t != NULL, "task_create should not return NULL");
 
     ASSERT(t->id         == 7,          "id should be 7");
@@ -38,7 +38,7 @@ TEST(test_task_create_fields) {
 }
 
 TEST(test_task_create_pi_state) {
-    task_t *t = task_create(1, 1, 1);
+    task_t *t = task_create(1, 1, 1, 1.0);
     ASSERT(t != NULL, "task_create should not return NULL");
 
     ASSERT(t->pi.sum  == 2.0, "pi.sum should start at 2.0");
@@ -52,7 +52,7 @@ TEST(test_task_create_pi_state) {
 /* ── dispatch timestamps ────────────────────────────────────── */
 
 TEST(test_first_dispatch_set_on_first_run) {
-    task_t *t = task_create(1, 1, 50);
+    task_t *t = task_create(1, 1, 50, 1.0);
     ASSERT(t != NULL, "task_create should not return NULL");
 
     ASSERT(task_transition_to_running(t, 1) == true,
@@ -67,7 +67,7 @@ TEST(test_first_dispatch_set_on_first_run) {
 }
 
 TEST(test_first_dispatch_stable_on_second_run) {
-    task_t *t = task_create(2, 1, 50);
+    task_t *t = task_create(2, 1, 50, 1.0);
     ASSERT(t != NULL, "task_create should not return NULL");
 
     ASSERT(task_transition_to_running(t, 1) == true,
@@ -94,7 +94,7 @@ TEST(test_first_dispatch_stable_on_second_run) {
 static task_t *make_task_with_done(uint32_t id, uint32_t tickets,
                                    uint32_t work_units, uint32_t done)
 {
-    task_t *t = task_create(id, tickets, work_units);
+    task_t *t = task_create(id, tickets, work_units, 1.0);
     if (t) t->work_units_done = done;
     return t;
 }
