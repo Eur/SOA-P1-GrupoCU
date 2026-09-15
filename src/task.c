@@ -216,6 +216,16 @@ void task_set_slice(task_t *task, uint32_t slice_size) {
     task->slice_size = (slice_size >= 1) ? slice_size : 1;
 }
 
+void task_apply_compensation(task_t *task, bool compensation_enabled) {
+    if (compensation_enabled && task->yield_fraction < 1.0) {
+        uint64_t comp = (uint64_t)round(
+            (double)task->tickets / task->yield_fraction);
+        task->effective_tickets = (comp > UINT32_MAX) ? UINT32_MAX : (uint32_t)comp;
+    } else {
+        task->effective_tickets = task->tickets;
+    }
+}
+
 /**
  * @brief Executes one work unit of a task's pi calculation.
  *

@@ -305,7 +305,6 @@ void scheduler_main_loop(struct node *task_list_head) {
          * at the begining of this loop where this
          * thread is set to wait.
          */
-        data_from_task->effective_tickets = data_from_task->tickets; /* reset compensación */
         task_transition_to_running(data_from_task, global_dispatch);
 
         /*
@@ -314,17 +313,8 @@ void scheduler_main_loop(struct node *task_list_head) {
          * yield_fraction is a static per-task parameter (parsed at
          * load time), so this can be computed right away without
          * waiting for the task to actually finish running.
-         */
-        if (parser_compensation_get() &&
-            task_is_eligible(data_from_task) &&
-            data_from_task->yield_fraction < 1.0) {
-            uint64_t comp = (uint64_t)round(
-                (double)data_from_task->tickets / data_from_task->yield_fraction);
-            data_from_task->effective_tickets =
-                (comp > UINT32_MAX) ? UINT32_MAX : (uint32_t)comp;
-        } else {
-            data_from_task->effective_tickets = data_from_task->tickets;
-        }
+        */
+        task_apply_compensation(data_from_task, parser_compensation_get());
 
         /*
          * Defer the "result" log line to the top of the next loop

@@ -88,6 +88,24 @@ void task_destroy(task_t *task);
 void task_set_slice(task_t *task, uint32_t units);
 
 /**
+ * @brief Applies (or resets) ticket compensation for a task right after
+ *        it has been dispatched.
+ *
+ * @details When compensation is enabled and the task yielded before
+ *          completing its previous quantum/slice (yield_fraction < 1.0),
+ *          boosts effective_tickets to round(tickets / yield_fraction),
+ *          clamped to UINT32_MAX, so the task is more likely to win a
+ *          future draw. Otherwise (compensation disabled, or the task
+ *          ran to completion last time) effective_tickets is reset to
+ *          tickets, i.e. no boost.
+ *
+ * @param task                 Target task. Must not be NULL.
+ * @param compensation_enabled Whether the --compensation flag is set
+ *                              (see parser_compensation_get).
+ */
+void task_apply_compensation(task_t *task, bool compensation_enabled);
+
+/**
  * @brief Transitions a task from TASK_READY to TASK_RUNNING.
  *
  * @details Increments the dispatch counter on success.
