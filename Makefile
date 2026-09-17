@@ -39,7 +39,23 @@ test: $(TARGET)
 		fi; \
 	done
 
+	@set -eu; \
+	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
+	printf '\033[38;5;208m+ 2. Starting reproducibility validation                      +\033[0m\n'; \
+	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
+	reproducibility_input=tests/reproducibility_input_files/reproducibility_input_file.csv; \
+	first_log=results/reproducibility_run_1.log; \
+	second_log=results/reproducibility_run_2.log; \
+	./$(TARGET) --input "$$reproducibility_input" --mode quantum --quantum 10 --seed 2026 --log "$$first_log"; \
+	./$(TARGET) --input "$$reproducibility_input" --mode quantum --quantum 10 --seed 2026 --log "$$second_log"; \
+	if diff -u "$$first_log" "$$second_log"; then \
+		printf '\033[32mPASS: reproducibility logs are identical\033[0m\n'; \
+	else \
+		printf '\033[31mFAIL: reproducibility logs differ\033[0m\n'; \
+		exit 1; \
+	fi
 
+	
 
 ASAN_TARGET := lottery_scheduler_asan
 
