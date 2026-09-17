@@ -41,7 +41,8 @@ make clean
 
 - `make all/lottery_scheduler`: compiles the main scheduler binary `lottery_scheduler`.
 - `make clean`: removes compiled binaries and sanitizer artifacts.
-- `make test`: builds and executes the scheduler with the default `main` entry point.
+- `make test`: builds the scheduler and verifies:
+        - every CSV in `tests/invalid_input_files/` is rejected with a nonzero exit status.
 - `make asan`: builds the program with AddressSanitizer enabled.
 - `make asan_cooperative`: runs the ASan build in cooperative mode with the sample cooperative command.
 - `make asan_quantum`: runs the ASan build in quantum mode with the sample quantum command.

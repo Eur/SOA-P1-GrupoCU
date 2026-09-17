@@ -1,5 +1,6 @@
 CC := gcc
 CFLAGS := -O2 -std=c17 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread
+LDLIBS := -lm
 
 
 TARGET := lottery_scheduler
@@ -13,13 +14,30 @@ OBJECTS := $(SOURCES:.c=.o)
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $@
+	$(CC) $(CFLAGS) $(OBJECTS) $(LDLIBS) -o $@
 
 src/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 test: $(TARGET)
-	./$(TARGET)
+	@set -eu; \
+	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
+	printf '\033[38;5;208m+ 1. Starting validation tests across invalid input CSV files +\033[0m\n'; \
+	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
+	for input_file in tests/invalid_input_files/*.csv; do \
+		printf '\033[33m----------Begin testing for input file: %s----------\033[0m\n' "$$input_file"; \
+		if ./$(TARGET) --input "$$input_file" --mode quantum --quantum 1 --seed 2026; then \
+			exit_code=0; \
+		else \
+			exit_code=$$?; \
+		fi; \
+		if [ "$$exit_code" -eq 0 ]; then \
+			printf '\033[31mFAIL: %s was accepted\033[0m\n' "$$input_file"; \
+			exit 1; \
+		else \
+			printf '\033[32mPASS: %s was rejected\033[0m\n' "$$input_file"; \
+		fi; \
+	done
 
 
 
