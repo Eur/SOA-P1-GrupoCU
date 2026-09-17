@@ -135,6 +135,7 @@ int parser_load(const char *filename, struct node **head)
         double yield_fraction = 1.0;
         int fields = sscanf(line, "%ld,%ld,%ld,%lf",
                             &id_line, &tickets_line, &work_units_line, &yield_fraction);
+                            
         if (fields < 3) {
             fprintf(stderr,
                     "Parser: invalid format at line %d: '%s'\n"
