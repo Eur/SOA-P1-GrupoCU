@@ -337,7 +337,14 @@ void scheduler_main_loop(struct node *task_list_head) {
 bool scheduler_deinit(struct node *task_list_head) {
 
     FOR_EACH_NODE(task_list_head, current_task_node) {
-        pthread_join(threads_per_task[current_task_node->id], NULL);
+        int join_result = pthread_join(threads_per_task[current_task_node->id], NULL);
+        if (join_result != 0) {
+            fprintf(stderr,
+                    "Scheduler: Failed to join main thread for task %" PRIu32 " (error %d)\n",
+                    current_task_node->id,
+                    join_result);
+            return false;
+        }
     }
 
     if (dll_clean_list(&task_list_head) == false) {
