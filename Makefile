@@ -9,7 +9,8 @@ SOURCES := src/main.c src/double_linked_list.c src/parser.c src/rng.c src/schedu
 OBJECTS := $(SOURCES:.c=.o)
 
 .PHONY: all test clean
-.PHONY: asan asan_cooperative asan_quantum tsan tsan_cooperative tsan_quantum
+.PHONY: asan asan_cooperative asan_quantum tsan tsan_cooperative tsan_quantum \
+	ubsan ubsan_slice ubsan_quantum
 
 all: $(TARGET)
 
@@ -21,7 +22,6 @@ src/%.o: src/%.c
 
 test: $(TARGET)
 	@set -eu; \
-	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
 	printf '\033[38;5;208m+ 1. Starting validation tests across invalid input CSV files +\033[0m\n'; \
 	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
 	for input_file in tests/invalid_input_files/*.csv; do \
@@ -37,7 +37,7 @@ test: $(TARGET)
 		else \
 			printf '\033[32mPASS: %s was rejected\033[0m\n' "$$input_file"; \
 		fi; \
-	done
+	done \
 
 	@set -eu; \
 	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
@@ -53,8 +53,47 @@ test: $(TARGET)
 	else \
 		printf '\033[31mFAIL: reproducibility logs differ\033[0m\n'; \
 		exit 1; \
-	fi
+	fi \
 
+	@set -eu; \
+	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
+	printf '\033[38;5;208m+ 3. Starting stress validation                               +\033[0m\n'; \
+	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
+	run_stress_test() { \
+		sanitizer=$$1; scenario=$$2; seed=$$3; \
+		case "$$scenario" in \
+			quantum) input=tests/stress_input_files/stress_input_quantum.csv; mode=quantum; parameter=--quantum; value=1000; compensation=0 ;; \
+			quantum_compensation) input=tests/stress_input_files/stress_input_quantum_compensation.csv; mode=quantum; parameter=--quantum; value=1000; compensation=1 ;; \
+			slice) input=tests/stress_input_files/stress_input_slice.csv; mode=cooperative; parameter=--slice-percent; value=10; compensation=0 ;; \
+			slice_compensation) input=tests/stress_input_files/stress_input_slice_compensation.csv; mode=cooperative; parameter=--slice-percent; value=10; compensation=1 ;; \
+			*) printf '\033[31mFAIL: unknown stress scenario %s\033[0m\n' "$$scenario"; return 1 ;; \
+		esac; \
+		case "$$sanitizer" in \
+			asan) binary=./$(ASAN_TARGET); sanitizer_options=ASAN_OPTIONS=log_path=./asan_report:halt_on_error=1:detect_leaks=1 ;; \
+			tsan) binary=./$(TSAN_TARGET); sanitizer_options=TSAN_OPTIONS=log_path=./at:san_reporthalt_on_error=1 ;; \
+			ubsan) binary=./$(UBSAN_TARGET); sanitizer_options=UBSAN_OPTIONS=log_path=./ubsan_report:halt_on_error=1:print_stacktrace=1 ;; \
+			*) printf '\033[31mFAIL: unknown sanitizer %s\033[0m\n' "$$sanitizer"; return 1 ;; \
+		esac; \
+		log=results/stress_$${sanitizer}_$${scenario}_seed_$${seed}.log; \
+		printf '\033[38;5;208mTesting 25 tasks in %s mode with %s, seed %s, compensation %s\033[0m\n' "$$mode" "$$sanitizer" "$$seed" "$$([ "$$compensation" -eq 1 ] && printf activated || printf disabled)"; \
+		set -- --input "$$input" --mode "$$mode" "$$parameter" "$$value" --seed "$$seed" --log "$$log"; \
+		if [ "$$compensation" -eq 1 ]; then set -- "$$@" --compensation; fi; \
+		if env "$$sanitizer_options" "$$binary" "$$@"; then \
+			printf '\033[32mPASS: %s %s seed %s\033[0m\n' "$$sanitizer" "$$scenario" "$$seed"; \
+		else \
+			printf '\033[31mFAIL: %s %s seed %s\033[0m\n' "$$sanitizer" "$$scenario" "$$seed"; \
+			return 1; \
+		fi; \
+	}; \
+	for sanitizer in asan tsan ubsan; do \
+		for scenario in quantum quantum_compensation slice slice_compensation; do \
+			for seed in 2026 4242; do \
+				run_stress_test "$$sanitizer" "$$scenario" "$$seed"; \
+			done; \
+		done; \
+	done
+
+	
 	
 
 ASAN_TARGET := lottery_scheduler_asan
@@ -72,7 +111,7 @@ asan_quantum: $(ASAN_TARGET)
 	export ASAN_OPTIONS=log_path=./asan_report:detect_leaks=1; ./$(ASAN_TARGET) --input tests/base.csv --mode quantum --quantum 1000 --seed 2026 --log results/base_events.csv --summary results/base_summary.csv
 
 $(ASAN_TARGET): $(ASAN_OBJECTS)
-	$(CC) $(ASAN_CFLAGS) $(ASAN_OBJECTS) -o $@
+	$(CC) $(ASAN_CFLAGS) $(ASAN_OBJECTS) $(LDLIBS) -o $@
 
 src/%.asan.o: src/%.c
 	$(CC) $(ASAN_CFLAGS) -c $< -o $@
@@ -93,11 +132,34 @@ tsan_quantum: $(TSAN_TARGET)
 	TSAN_OPTIONS=log_path=./tsan_report:halt_on_error=1 ./$(TSAN_TARGET) --input tests/base.csv --mode quantum --quantum 1000 --seed 2026 --log results/base_events.csv --summary results/base_summary.csv
 
 $(TSAN_TARGET): $(TSAN_OBJECTS)
-	$(CC) $(TSAN_CFLAGS) $(TSAN_OBJECTS) -o $@
+	$(CC) $(TSAN_CFLAGS) $(TSAN_OBJECTS) $(LDLIBS) -o $@
 
 src/%.tsan.o: src/%.c
 	$(CC) $(TSAN_CFLAGS) -c $< -o $@
 
+
+UBSAN_TARGET := lottery_scheduler_ubsan
+
+UBSAN_CFLAGS := $(CFLAGS) -fsanitize=undefined -fno-omit-frame-pointer -g
+UBSAN_OBJECTS := $(SOURCES:.c=.ubsan.o)
+
+ubsan: $(UBSAN_TARGET)
+	UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ./$(UBSAN_TARGET)
+
+ubsan_slice: $(UBSAN_TARGET)
+	UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ./$(UBSAN_TARGET) --input tests/base.csv --mode cooperative --slice-percent 10 --seed 2026 --summary results/base_summary.csv
+
+ubsan_quantum: $(UBSAN_TARGET)
+	UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ./$(UBSAN_TARGET) --input tests/base.csv --mode quantum --quantum 1000 --seed 2026 --log results/base_events.csv --summary results/base_summary.csv
+
+$(UBSAN_TARGET): $(UBSAN_OBJECTS)
+	$(CC) $(UBSAN_CFLAGS) $(UBSAN_OBJECTS) $(LDLIBS) -o $@
+
+src/%.ubsan.o: src/%.c
+	$(CC) $(UBSAN_CFLAGS) -c $< -o $@
+
+test: $(ASAN_TARGET) $(TSAN_TARGET) $(UBSAN_TARGET)
+
 clean:
-	rm -f $(OBJECTS) $(ASAN_OBJECTS) $(TSAN_OBJECTS) \
-		$(TARGET) $(ASAN_TARGET) $(TSAN_TARGET)
+	rm -f $(OBJECTS) $(ASAN_OBJECTS) $(TSAN_OBJECTS) $(UBSAN_OBJECTS) \
+		$(TARGET) $(ASAN_TARGET) $(TSAN_TARGET) $(UBSAN_TARGET)
