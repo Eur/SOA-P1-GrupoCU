@@ -42,14 +42,18 @@ make clean
 - `make all/lottery_scheduler`: compiles the main scheduler binary `lottery_scheduler`.
 - `make clean`: removes compiled binaries and sanitizer artifacts.
 - `make test`: builds the scheduler and verifies:
-        - Validation: every CSV in `tests/invalid_input_files/` is rejected with a nonzero exit status.
-        - Reproducibility: the same input file produces the same result always.
+    * Validation: every CSV in `tests/invalid_input_files/` is rejected with a nonzero exit status.
+    * Reproducibility: the same input file produces the same result always.
+    * Stress: bunch of stress input files with 25 tasks; testing quantum and slice modes; ubsan, asan and tsan; different seeds; compensation enabled and disabled
 - `make asan`: builds the program with AddressSanitizer enabled.
 - `make asan_cooperative`: runs the ASan build in cooperative mode with the sample cooperative command.
 - `make asan_quantum`: runs the ASan build in quantum mode with the sample quantum command.
 - `make tsan`: builds the program with ThreadSanitizer enabled.
 - `make tsan_cooperative`: runs the TSan build in cooperative mode with the sample cooperative command.
 - `make tsan_quantum`: runs the TSan build in quantum mode with the sample quantum command.
+- `make ubsan`: builds the program with UndefinedBehaviorSanitizer enabled.
+- `make ubsan_slice`: runs the UBSan build in cooperative mode with the sample slice command.
+- `make ubsan_quantum`: runs the UBSan build in quantum mode with the sample quantum command.
 
 # Unit test directives
 
@@ -130,6 +134,16 @@ make tsan_cooperative
 ## TSan quantum mode
 ```bash
 make tsan_quantum
+```
+
+## UBSan cooperative mode
+```bash
+make ubsan_slice
+```
+
+## UBSan quantum mode
+```bash
+make ubsan_quantum
 ```
 
 # Repository structure

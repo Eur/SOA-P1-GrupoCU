@@ -10,7 +10,13 @@
 #include "scheduler.h"
 #include "logger.h"
 
-#define MAX_TASK_THREADS 25
+/*
+ * To avoid a global buffer overflow the max tasks are 26,
+ * this is because ids go from 1-25, but the C array will be
+ * from 0-24, so a task/thread id of 25 will provoke the
+ * memory issue
+ */
+#define MAX_TASK_THREADS 26
 static pthread_t threads_per_task[MAX_TASK_THREADS];
 
 static uint64_t scheduler_calculate_cumulutive_tickets(struct node * head) {
