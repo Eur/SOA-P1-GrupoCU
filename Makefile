@@ -71,7 +71,7 @@ test: $(TARGET)
 		esac; \
 		case "$$sanitizer" in \
 			asan) binary=./$(ASAN_TARGET); sanitizer_options=ASAN_OPTIONS=log_path=./asan_report:halt_on_error=1:detect_leaks=1 ;; \
-			tsan) binary=./$(TSAN_TARGET); sanitizer_options=TSAN_OPTIONS=log_path=./at:san_reporthalt_on_error=1 ;; \
+			tsan) binary=./$(TSAN_TARGET); sanitizer_options=TSAN_OPTIONS=log_path=./tsan_report:halt_on_error=1 ;; \
 			ubsan) binary=./$(UBSAN_TARGET); sanitizer_options=UBSAN_OPTIONS=log_path=./ubsan_report:halt_on_error=1:print_stacktrace=1 ;; \
 			*) printf '\033[31mFAIL: unknown sanitizer %s\033[0m\n' "$$sanitizer"; return 1 ;; \
 		esac; \
