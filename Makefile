@@ -22,6 +22,7 @@ src/%.o: src/%.c
 
 test: $(TARGET)
 	@set -eu; \
+	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
 	printf '\033[38;5;208m+ 1. Starting validation tests across invalid input CSV files +\033[0m\n'; \
 	printf '\033[38;5;208m+-------------------------------------------------------------+\033[0m\n'; \
 	for input_file in tests/invalid_input_files/*.csv; do \
