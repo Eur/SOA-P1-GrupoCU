@@ -32,9 +32,9 @@ TEST_QUANTUM_SRCS := test_quantum.c \
                      ../../src/rng.c \
                      ../../src/logger.c
 
-all: test_parser test_dll test_rng test_summary test_cooperative test_quantum
+all: test_parser test_dll test_rng test_summary test_cooperative test_quantum test_experiments
 
-clean: clean_test_parser clean_test_dll clean_test_rng clean_test_summary clean_test_cooperative clean_test_quantum
+clean: clean_test_parser clean_test_dll clean_test_rng clean_test_summary clean_test_cooperative clean_test_quantum clean_test_experiments
 .PHONY: all clean
 
 ## Parser unit tests
@@ -64,23 +64,37 @@ clean_test_rng:
 
 test_summary: $(TEST_SUMMARY)
 	$(TEST_SUMMARY)
-$(TEST_SUMMARY): $(TEST_SUMMARY_SRCS)
-	$(CC) $(CFLAGS) $^ -o $@ -lm
+$(TEST_SUMMARY): $(TEST_SUMMARY_SRCS) include/experiment_stats.h
+	$(CC) $(CFLAGS) $(filter %.c,$^) -o $@ -lm
 clean_test_summary:
 	rm -f $(TEST_SUMMARY)
 
 	
 test_cooperative: $(TEST_COOPERATIVE)
+	$(MAKE) -C ../.. all
 	$(TEST_COOPERATIVE)
-$(TEST_COOPERATIVE): $(TEST_COOPERATIVE_SRCS)
-	$(CC) $(CFLAGS) $^ -o $@ -lm
+$(TEST_COOPERATIVE): $(TEST_COOPERATIVE_SRCS) include/experiment_stats.h
+	$(CC) $(CFLAGS) $(filter %.c,$^) -o $@ -lm
 clean_test_cooperative:
 	rm -f $(TEST_COOPERATIVE)
 
 ## Quantum mode / ticket compensation unit tests
 test_quantum: $(TEST_QUANTUM)
+	$(MAKE) -C ../.. all
 	$(TEST_QUANTUM)
-$(TEST_QUANTUM): $(TEST_QUANTUM_SRCS)
-	$(CC) $(CFLAGS) $^ -o $@ -lm
+$(TEST_QUANTUM): $(TEST_QUANTUM_SRCS) include/experiment_stats.h
+	$(CC) $(CFLAGS) $(filter %.c,$^) -o $@ -lm
 clean_test_quantum:
 	rm -f $(TEST_QUANTUM)
+
+## Experiments (cases 3 and 4): runs the scheduler binary over 30 seeds
+TEST_EXPERIMENTS := /tmp/test_experiments_bin
+TEST_EXPERIMENTS_SRCS := test_experiments.c
+
+test_experiments: $(TEST_EXPERIMENTS)
+	$(MAKE) -C ../.. all
+	$(TEST_EXPERIMENTS)
+$(TEST_EXPERIMENTS): $(TEST_EXPERIMENTS_SRCS) include/experiment_stats.h
+	$(CC) $(CFLAGS) $(filter %.c,$^) -o $@ -lm
+clean_test_experiments:
+	rm -f $(TEST_EXPERIMENTS)
