@@ -6,8 +6,13 @@
 // Local project imports
 #include "task.h"
 
-// Unit test framework import
+// Unit test framework imports
 #include "unit_test_infra.h"
+#include "experiment_stats.h"
+
+/* 0.01% of 10 000 000 units = 1 000 units per slice, so 10 000 dispatches
+ * never finish a task and the observed share reflects only the lottery. */
+#define COOPERATIVE_ARGS "--mode cooperative --slice-percent 0.01"
 
 
 /* Helper that mirrors the integer ceiling used in scheduler_configure_cooperative */
@@ -100,6 +105,29 @@ TEST(test_slice_ceil_large_values)
 }
 
 
+/* ── share statistics over 30 seeds ─────────────────────────────────────── */
+
+TEST(test_cooperative_shares_follow_tickets)
+{
+    task_stats_t stats[MAX_TASKS];
+    int tasks = run_experiment("cooperative_case4", PROPORTIONAL_INPUT,
+                               COOPERATIVE_ARGS, stats);
+    ASSERT(tasks == 5, "cooperative run should report 5 tasks over all seeds");
+
+    double mean_error = print_stats("Cooperative: proportionality",
+                                    "30 seeds, 10000 dispatches, slice 0.01%",
+                                    stats, tasks, MAX_MEAN_ABS_ERROR);
+
+    for (int i = 0; i < tasks; i++) {
+        ASSERT(stats[i].abs_error <= MAX_MEAN_ABS_ERROR,
+               "cooperative: abs error of every task should be <= 0.02");
+    }
+    ASSERT(mean_error <= MAX_MEAN_ABS_ERROR,
+           "cooperative: mean absolute error should be <= 0.02");
+    return 0;
+}
+
+
 int main(void)
 {
     printf("=== Cooperative Mode — Unit tests ===\n\n");
@@ -111,4 +139,9 @@ int main(void)
     RUN(test_slice_ceil_full_percent);
     RUN(test_slice_ceil_minimum_enforced_at_zero_percent);
     RUN(test_slice_ceil_large_values);
+    RUN(test_cooperative_shares_follow_tickets);
+
+    printf("\nSummary: %d run, %d passed, %d failed\n",
+           tests_run, tests_passed, tests_failed);
+    return tests_failed == 0 ? 0 : 1;
 }

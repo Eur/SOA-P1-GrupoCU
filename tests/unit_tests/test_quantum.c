@@ -10,8 +10,11 @@
 #include "task.h"
 #include "scheduler.h"
 
-// Unit test framework import
+// Unit test framework imports
 #include "unit_test_infra.h"
+#include "experiment_stats.h"
+
+#define QUANTUM_ARGS "--mode quantum --quantum 500"
 
 
 /* ── task_apply_compensation ──────────────────────────────────────────── */
@@ -174,6 +177,29 @@ TEST(test_scheduler_configure_quantum_zero_clamps_to_one)
 }
 
 
+/* ── share statistics over 30 seeds ───────────────────────────────────── */
+
+TEST(test_quantum_shares_are_equal_with_equal_tickets)
+{
+    task_stats_t stats[MAX_TASKS];
+    int tasks = run_experiment("quantum_case3", EQUAL_SHARES_INPUT,
+                               QUANTUM_ARGS, stats);
+    ASSERT(tasks == 5, "quantum run should report 5 tasks over all seeds");
+
+    double mean_error = print_stats("Quantum: equal shares",
+                                    "30 seeds, 10000 dispatches, quantum 500",
+                                    stats, tasks, MAX_MEAN_ABS_ERROR);
+
+    for (int i = 0; i < tasks; i++) {
+        ASSERT(stats[i].abs_error <= MAX_MEAN_ABS_ERROR,
+               "quantum: abs error of every task should be <= 0.02");
+    }
+    ASSERT(mean_error <= MAX_MEAN_ABS_ERROR,
+           "quantum: mean absolute error should be <= 0.02");
+    return 0;
+}
+
+
 int main(void)
 {
     printf("=== Quantum Mode / Compensation — Unit tests ===\n\n");
@@ -187,4 +213,9 @@ int main(void)
 
     RUN(test_scheduler_configure_quantum_sets_slice_on_every_task);
     RUN(test_scheduler_configure_quantum_zero_clamps_to_one);
+    RUN(test_quantum_shares_are_equal_with_equal_tickets);
+
+    printf("\nSummary: %d run, %d passed, %d failed\n",
+           tests_run, tests_passed, tests_failed);
+    return tests_failed == 0 ? 0 : 1;
 }

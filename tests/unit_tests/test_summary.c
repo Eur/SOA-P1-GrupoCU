@@ -14,6 +14,7 @@
 
 // Unit test framework imports
 #include "unit_test_infra.h"
+#include "experiment_stats.h"
 
 #define TEST_EVENTS_PATH  "/tmp/test_events_unit.csv"
 #define TEST_SUMMARY_PATH "/tmp/test_summary_unit.csv"
@@ -247,6 +248,48 @@ TEST(test_logger_write_summary_observed_share_sums_to_one) {
     return 0;
 }
 
+TEST(test_logger_write_summary_share_table) {
+    ASSERT(logger_init_structure(TEST_EVENTS_PATH, TEST_SUMMARY_PATH) == true,
+           "logger_init_structure should succeed");
+
+    task_t *t1 = make_task_with_done(1, 3, 100, 10);
+    task_t *t2 = make_task_with_done(2, 5, 200, 20);
+    task_t *t3 = make_task_with_done(3, 2, 150, 30);
+    ASSERT(t1 && t2 && t3, "all task_create calls should succeed");
+
+    task_t *tasks[] = {t1, t2, t3};
+    struct node *list_head = make_task_list(tasks, 3);
+    ASSERT(logger_write_summary(list_head) == true,
+           "logger_write_summary should return true");
+
+    uint32_t ids[MAX_TASKS], tickets[MAX_TASKS];
+    double   shares[MAX_TASKS];
+    int rows = read_summary(TEST_SUMMARY_PATH, ids, tickets, shares);
+    ASSERT(rows == 3, "summary should contain 3 task rows");
+
+    /* Single sample: the table is informational, the tasks were given
+     * arbitrary work_units_done values, so shares need not follow tickets. */
+    task_stats_t stats[MAX_TASKS];
+    double sum[MAX_TASKS], sum_sq[MAX_TASKS];
+    for (int i = 0; i < rows; i++) {
+        stats[i].task_id = ids[i];
+        stats[i].tickets = tickets[i];
+        sum[i]    = shares[i];
+        sum_sq[i] = shares[i] * shares[i];
+    }
+    finish_stats(stats, rows, sum, sum_sq, 1);
+    print_stats("Summary: share table", "1 sample, work_units_done 10/20/30",
+                stats, rows, -1.0);
+
+    ASSERT(fabs(shares[0] - 10.0 / 60.0) < 0.0001, "task 1 share should be 10/60");
+    ASSERT(fabs(shares[1] - 20.0 / 60.0) < 0.0001, "task 2 share should be 20/60");
+    ASSERT(fabs(shares[2] - 30.0 / 60.0) < 0.0001, "task 3 share should be 30/60");
+
+    free_list_nodes(list_head);
+    task_destroy(t1); task_destroy(t2); task_destroy(t3);
+    return 0;
+}
+
 /* ── main ───────────────────────────────────────────────────── */
 
 int main(void) {
@@ -260,6 +303,9 @@ int main(void) {
     RUN(test_logger_write_summary_header);
     RUN(test_logger_write_summary_row_count);
     RUN(test_logger_write_summary_observed_share_sums_to_one);
+    RUN(test_logger_write_summary_share_table);
 
-    return 0;
+    printf("\nSummary: %d run, %d passed, %d failed\n",
+           tests_run, tests_passed, tests_failed);
+    return tests_failed == 0 ? 0 : 1;
 }
