@@ -32,9 +32,9 @@ TEST_QUANTUM_SRCS := test_quantum.c \
                      ../../src/rng.c \
                      ../../src/logger.c
 
-all: test_parser test_dll test_rng test_summary test_cooperative test_quantum test_experiments
+all: test_parser test_dll test_rng test_summary test_cooperative test_quantum test_experiments test_mode_comparison
 
-clean: clean_test_parser clean_test_dll clean_test_rng clean_test_summary clean_test_cooperative clean_test_quantum clean_test_experiments
+clean: clean_test_parser clean_test_dll clean_test_rng clean_test_summary clean_test_cooperative clean_test_quantum clean_test_experiments clean_test_mode_comparison
 .PHONY: all clean
 
 ## Parser unit tests
@@ -98,3 +98,15 @@ $(TEST_EXPERIMENTS): $(TEST_EXPERIMENTS_SRCS) include/experiment_stats.h
 	$(CC) $(CFLAGS) $(filter %.c,$^) -o $@ -lm
 clean_test_experiments:
 	rm -f $(TEST_EXPERIMENTS)
+
+## Mode comparison (case 6): cooperative vs quantum, same input and seed
+TEST_MODE_COMPARISON := /tmp/test_mode_comparison_bin
+TEST_MODE_COMPARISON_SRCS := test_mode_comparison.c
+
+test_mode_comparison: $(TEST_MODE_COMPARISON)
+	$(MAKE) -C ../.. all
+	$(TEST_MODE_COMPARISON)
+$(TEST_MODE_COMPARISON): $(TEST_MODE_COMPARISON_SRCS)
+	$(CC) $(CFLAGS) $^ -o $@ -lm
+clean_test_mode_comparison:
+	rm -f $(TEST_MODE_COMPARISON)

@@ -1,0 +1,330 @@
+[2026-09-19-08:55:09]dispatch=1, winner_id=4, winning_ticket=63, active_tickets=150, work_units_remaining=25000
+[2026-09-19-08:55:09]dispatch=1, winner_id=4, run_units=1000, completed_units=1000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=24000
+[2026-09-19-08:55:09]dispatch=2, winner_id=5, winning_ticket=106, active_tickets=150, work_units_remaining=50000
+[2026-09-19-08:55:09]dispatch=2, winner_id=5, run_units=1000, completed_units=1000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=49000
+[2026-09-19-08:55:09]dispatch=3, winner_id=3, winning_ticket=41, active_tickets=150, work_units_remaining=40000
+[2026-09-19-08:55:09]dispatch=3, winner_id=3, run_units=1000, completed_units=1000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=39000
+[2026-09-19-08:55:09]dispatch=4, winner_id=5, winning_ticket=120, active_tickets=150, work_units_remaining=49000
+[2026-09-19-08:55:09]dispatch=4, winner_id=5, run_units=1000, completed_units=2000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=48000
+[2026-09-19-08:55:09]dispatch=5, winner_id=5, winning_ticket=116, active_tickets=150, work_units_remaining=48000
+[2026-09-19-08:55:09]dispatch=5, winner_id=5, run_units=1000, completed_units=3000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=47000
+[2026-09-19-08:55:09]dispatch=6, winner_id=3, winning_ticket=51, active_tickets=150, work_units_remaining=39000
+[2026-09-19-08:55:09]dispatch=6, winner_id=3, run_units=1000, completed_units=2000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=38000
+[2026-09-19-08:55:09]dispatch=7, winner_id=5, winning_ticket=134, active_tickets=150, work_units_remaining=47000
+[2026-09-19-08:55:09]dispatch=7, winner_id=5, run_units=1000, completed_units=4000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=46000
+[2026-09-19-08:55:09]dispatch=8, winner_id=4, winning_ticket=87, active_tickets=150, work_units_remaining=24000
+[2026-09-19-08:55:09]dispatch=8, winner_id=4, run_units=1000, completed_units=2000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=23000
+[2026-09-19-08:55:09]dispatch=9, winner_id=4, winning_ticket=100, active_tickets=150, work_units_remaining=23000
+[2026-09-19-08:55:09]dispatch=9, winner_id=4, run_units=1000, completed_units=3000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=22000
+[2026-09-19-08:55:09]dispatch=10, winner_id=5, winning_ticket=103, active_tickets=150, work_units_remaining=46000
+[2026-09-19-08:55:09]dispatch=10, winner_id=5, run_units=1000, completed_units=5000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=45000
+[2026-09-19-08:55:09]dispatch=11, winner_id=5, winning_ticket=102, active_tickets=150, work_units_remaining=45000
+[2026-09-19-08:55:09]dispatch=11, winner_id=5, run_units=1000, completed_units=6000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=44000
+[2026-09-19-08:55:09]dispatch=12, winner_id=5, winning_ticket=127, active_tickets=150, work_units_remaining=44000
+[2026-09-19-08:55:09]dispatch=12, winner_id=5, run_units=1000, completed_units=7000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=43000
+[2026-09-19-08:55:09]dispatch=13, winner_id=5, winning_ticket=104, active_tickets=150, work_units_remaining=43000
+[2026-09-19-08:55:09]dispatch=13, winner_id=5, run_units=1000, completed_units=8000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=42000
+[2026-09-19-08:55:09]dispatch=14, winner_id=3, winning_ticket=53, active_tickets=150, work_units_remaining=38000
+[2026-09-19-08:55:09]dispatch=14, winner_id=3, run_units=1000, completed_units=3000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=37000
+[2026-09-19-08:55:09]dispatch=15, winner_id=1, winning_ticket=6, active_tickets=150, work_units_remaining=20000
+[2026-09-19-08:55:09]dispatch=15, winner_id=1, run_units=1000, completed_units=1000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=19000
+[2026-09-19-08:55:09]dispatch=16, winner_id=4, winning_ticket=79, active_tickets=150, work_units_remaining=22000
+[2026-09-19-08:55:09]dispatch=16, winner_id=4, run_units=1000, completed_units=4000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=21000
+[2026-09-19-08:55:09]dispatch=17, winner_id=5, winning_ticket=146, active_tickets=150, work_units_remaining=42000
+[2026-09-19-08:55:09]dispatch=17, winner_id=5, run_units=1000, completed_units=9000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=41000
+[2026-09-19-08:55:09]dispatch=18, winner_id=3, winning_ticket=33, active_tickets=150, work_units_remaining=37000
+[2026-09-19-08:55:09]dispatch=18, winner_id=3, run_units=1000, completed_units=4000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=36000
+[2026-09-19-08:55:09]dispatch=19, winner_id=4, winning_ticket=79, active_tickets=150, work_units_remaining=21000
+[2026-09-19-08:55:09]dispatch=19, winner_id=4, run_units=1000, completed_units=5000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=20000
+[2026-09-19-08:55:09]dispatch=20, winner_id=5, winning_ticket=116, active_tickets=150, work_units_remaining=41000
+[2026-09-19-08:55:09]dispatch=20, winner_id=5, run_units=1000, completed_units=10000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=40000
+[2026-09-19-08:55:09]dispatch=21, winner_id=5, winning_ticket=120, active_tickets=150, work_units_remaining=40000
+[2026-09-19-08:55:09]dispatch=21, winner_id=5, run_units=1000, completed_units=11000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=39000
+[2026-09-19-08:55:09]dispatch=22, winner_id=4, winning_ticket=98, active_tickets=150, work_units_remaining=20000
+[2026-09-19-08:55:09]dispatch=22, winner_id=4, run_units=1000, completed_units=6000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=19000
+[2026-09-19-08:55:09]dispatch=23, winner_id=1, winning_ticket=1, active_tickets=150, work_units_remaining=19000
+[2026-09-19-08:55:09]dispatch=23, winner_id=1, run_units=1000, completed_units=2000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=18000
+[2026-09-19-08:55:09]dispatch=24, winner_id=5, winning_ticket=102, active_tickets=150, work_units_remaining=39000
+[2026-09-19-08:55:09]dispatch=24, winner_id=5, run_units=1000, completed_units=12000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=38000
+[2026-09-19-08:55:09]dispatch=25, winner_id=2, winning_ticket=13, active_tickets=150, work_units_remaining=30000
+[2026-09-19-08:55:09]dispatch=25, winner_id=2, run_units=1000, completed_units=1000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=29000
+[2026-09-19-08:55:09]dispatch=26, winner_id=4, winning_ticket=100, active_tickets=150, work_units_remaining=19000
+[2026-09-19-08:55:09]dispatch=26, winner_id=4, run_units=1000, completed_units=7000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=18000
+[2026-09-19-08:55:09]dispatch=27, winner_id=5, winning_ticket=139, active_tickets=150, work_units_remaining=38000
+[2026-09-19-08:55:09]dispatch=27, winner_id=5, run_units=1000, completed_units=13000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=37000
+[2026-09-19-08:55:09]dispatch=28, winner_id=5, winning_ticket=127, active_tickets=150, work_units_remaining=37000
+[2026-09-19-08:55:09]dispatch=28, winner_id=5, run_units=1000, completed_units=14000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=36000
+[2026-09-19-08:55:09]dispatch=29, winner_id=2, winning_ticket=12, active_tickets=150, work_units_remaining=29000
+[2026-09-19-08:55:09]dispatch=29, winner_id=2, run_units=1000, completed_units=2000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=28000
+[2026-09-19-08:55:09]dispatch=30, winner_id=5, winning_ticket=131, active_tickets=150, work_units_remaining=36000
+[2026-09-19-08:55:09]dispatch=30, winner_id=5, run_units=1000, completed_units=15000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=35000
+[2026-09-19-08:55:09]dispatch=31, winner_id=5, winning_ticket=118, active_tickets=150, work_units_remaining=35000
+[2026-09-19-08:55:09]dispatch=31, winner_id=5, run_units=1000, completed_units=16000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=34000
+[2026-09-19-08:55:09]dispatch=32, winner_id=3, winning_ticket=60, active_tickets=150, work_units_remaining=36000
+[2026-09-19-08:55:09]dispatch=32, winner_id=3, run_units=1000, completed_units=5000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=35000
+[2026-09-19-08:55:09]dispatch=33, winner_id=2, winning_ticket=16, active_tickets=150, work_units_remaining=28000
+[2026-09-19-08:55:09]dispatch=33, winner_id=2, run_units=1000, completed_units=3000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=27000
+[2026-09-19-08:55:09]dispatch=34, winner_id=5, winning_ticket=101, active_tickets=150, work_units_remaining=34000
+[2026-09-19-08:55:09]dispatch=34, winner_id=5, run_units=1000, completed_units=17000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=33000
+[2026-09-19-08:55:09]dispatch=35, winner_id=3, winning_ticket=57, active_tickets=150, work_units_remaining=35000
+[2026-09-19-08:55:09]dispatch=35, winner_id=3, run_units=1000, completed_units=6000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=34000
+[2026-09-19-08:55:09]dispatch=36, winner_id=5, winning_ticket=114, active_tickets=150, work_units_remaining=33000
+[2026-09-19-08:55:09]dispatch=36, winner_id=5, run_units=1000, completed_units=18000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=32000
+[2026-09-19-08:55:09]dispatch=37, winner_id=5, winning_ticket=131, active_tickets=150, work_units_remaining=32000
+[2026-09-19-08:55:09]dispatch=37, winner_id=5, run_units=1000, completed_units=19000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=31000
+[2026-09-19-08:55:09]dispatch=38, winner_id=3, winning_ticket=42, active_tickets=150, work_units_remaining=34000
+[2026-09-19-08:55:09]dispatch=38, winner_id=3, run_units=1000, completed_units=7000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=33000
+[2026-09-19-08:55:09]dispatch=39, winner_id=4, winning_ticket=69, active_tickets=150, work_units_remaining=18000
+[2026-09-19-08:55:09]dispatch=39, winner_id=4, run_units=1000, completed_units=8000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=17000
+[2026-09-19-08:55:09]dispatch=40, winner_id=1, winning_ticket=7, active_tickets=150, work_units_remaining=18000
+[2026-09-19-08:55:09]dispatch=40, winner_id=1, run_units=1000, completed_units=3000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=17000
+[2026-09-19-08:55:09]dispatch=41, winner_id=5, winning_ticket=134, active_tickets=150, work_units_remaining=31000
+[2026-09-19-08:55:09]dispatch=41, winner_id=5, run_units=1000, completed_units=20000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=30000
+[2026-09-19-08:55:09]dispatch=42, winner_id=2, winning_ticket=22, active_tickets=150, work_units_remaining=27000
+[2026-09-19-08:55:09]dispatch=42, winner_id=2, run_units=1000, completed_units=4000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=26000
+[2026-09-19-08:55:09]dispatch=43, winner_id=5, winning_ticket=118, active_tickets=150, work_units_remaining=30000
+[2026-09-19-08:55:09]dispatch=43, winner_id=5, run_units=1000, completed_units=21000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=29000
+[2026-09-19-08:55:09]dispatch=44, winner_id=4, winning_ticket=97, active_tickets=150, work_units_remaining=17000
+[2026-09-19-08:55:09]dispatch=44, winner_id=4, run_units=1000, completed_units=9000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=16000
+[2026-09-19-08:55:09]dispatch=45, winner_id=1, winning_ticket=8, active_tickets=150, work_units_remaining=17000
+[2026-09-19-08:55:09]dispatch=45, winner_id=1, run_units=1000, completed_units=4000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=16000
+[2026-09-19-08:55:09]dispatch=46, winner_id=4, winning_ticket=72, active_tickets=150, work_units_remaining=16000
+[2026-09-19-08:55:09]dispatch=46, winner_id=4, run_units=1000, completed_units=10000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=15000
+[2026-09-19-08:55:09]dispatch=47, winner_id=5, winning_ticket=150, active_tickets=150, work_units_remaining=29000
+[2026-09-19-08:55:09]dispatch=47, winner_id=5, run_units=1000, completed_units=22000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=28000
+[2026-09-19-08:55:09]dispatch=48, winner_id=4, winning_ticket=99, active_tickets=150, work_units_remaining=15000
+[2026-09-19-08:55:09]dispatch=48, winner_id=4, run_units=1000, completed_units=11000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=14000
+[2026-09-19-08:55:09]dispatch=49, winner_id=5, winning_ticket=113, active_tickets=150, work_units_remaining=28000
+[2026-09-19-08:55:09]dispatch=49, winner_id=5, run_units=1000, completed_units=23000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=27000
+[2026-09-19-08:55:09]dispatch=50, winner_id=4, winning_ticket=68, active_tickets=150, work_units_remaining=14000
+[2026-09-19-08:55:09]dispatch=50, winner_id=4, run_units=1000, completed_units=12000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=13000
+[2026-09-19-08:55:09]dispatch=51, winner_id=3, winning_ticket=38, active_tickets=150, work_units_remaining=33000
+[2026-09-19-08:55:09]dispatch=51, winner_id=3, run_units=1000, completed_units=8000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=32000
+[2026-09-19-08:55:09]dispatch=52, winner_id=3, winning_ticket=60, active_tickets=150, work_units_remaining=32000
+[2026-09-19-08:55:09]dispatch=52, winner_id=3, run_units=1000, completed_units=9000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=31000
+[2026-09-19-08:55:09]dispatch=53, winner_id=1, winning_ticket=2, active_tickets=150, work_units_remaining=16000
+[2026-09-19-08:55:09]dispatch=53, winner_id=1, run_units=1000, completed_units=5000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=15000
+[2026-09-19-08:55:09]dispatch=54, winner_id=2, winning_ticket=23, active_tickets=150, work_units_remaining=26000
+[2026-09-19-08:55:09]dispatch=54, winner_id=2, run_units=1000, completed_units=5000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=25000
+[2026-09-19-08:55:09]dispatch=55, winner_id=3, winning_ticket=59, active_tickets=150, work_units_remaining=31000
+[2026-09-19-08:55:09]dispatch=55, winner_id=3, run_units=1000, completed_units=10000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=30000
+[2026-09-19-08:55:09]dispatch=56, winner_id=4, winning_ticket=74, active_tickets=150, work_units_remaining=13000
+[2026-09-19-08:55:09]dispatch=56, winner_id=4, run_units=1000, completed_units=13000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=12000
+[2026-09-19-08:55:09]dispatch=57, winner_id=4, winning_ticket=70, active_tickets=150, work_units_remaining=12000
+[2026-09-19-08:55:09]dispatch=57, winner_id=4, run_units=1000, completed_units=14000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=11000
+[2026-09-19-08:55:09]dispatch=58, winner_id=4, winning_ticket=78, active_tickets=150, work_units_remaining=11000
+[2026-09-19-08:55:09]dispatch=58, winner_id=4, run_units=1000, completed_units=15000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=10000
+[2026-09-19-08:55:09]dispatch=59, winner_id=5, winning_ticket=144, active_tickets=150, work_units_remaining=27000
+[2026-09-19-08:55:09]dispatch=59, winner_id=5, run_units=1000, completed_units=24000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=26000
+[2026-09-19-08:55:09]dispatch=60, winner_id=5, winning_ticket=114, active_tickets=150, work_units_remaining=26000
+[2026-09-19-08:55:09]dispatch=60, winner_id=5, run_units=1000, completed_units=25000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=25000
+[2026-09-19-08:55:09]dispatch=61, winner_id=2, winning_ticket=25, active_tickets=150, work_units_remaining=25000
+[2026-09-19-08:55:09]dispatch=61, winner_id=2, run_units=1000, completed_units=6000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=24000
+[2026-09-19-08:55:09]dispatch=62, winner_id=1, winning_ticket=10, active_tickets=150, work_units_remaining=15000
+[2026-09-19-08:55:09]dispatch=62, winner_id=1, run_units=1000, completed_units=6000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=14000
+[2026-09-19-08:55:09]dispatch=63, winner_id=4, winning_ticket=85, active_tickets=150, work_units_remaining=10000
+[2026-09-19-08:55:09]dispatch=63, winner_id=4, run_units=1000, completed_units=16000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=9000
+[2026-09-19-08:55:09]dispatch=64, winner_id=5, winning_ticket=122, active_tickets=150, work_units_remaining=25000
+[2026-09-19-08:55:09]dispatch=64, winner_id=5, run_units=1000, completed_units=26000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=24000
+[2026-09-19-08:55:09]dispatch=65, winner_id=5, winning_ticket=114, active_tickets=150, work_units_remaining=24000
+[2026-09-19-08:55:09]dispatch=65, winner_id=5, run_units=1000, completed_units=27000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=23000
+[2026-09-19-08:55:09]dispatch=66, winner_id=5, winning_ticket=149, active_tickets=150, work_units_remaining=23000
+[2026-09-19-08:55:09]dispatch=66, winner_id=5, run_units=1000, completed_units=28000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=22000
+[2026-09-19-08:55:09]dispatch=67, winner_id=3, winning_ticket=52, active_tickets=150, work_units_remaining=30000
+[2026-09-19-08:55:09]dispatch=67, winner_id=3, run_units=1000, completed_units=11000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=29000
+[2026-09-19-08:55:09]dispatch=68, winner_id=5, winning_ticket=121, active_tickets=150, work_units_remaining=22000
+[2026-09-19-08:55:09]dispatch=68, winner_id=5, run_units=1000, completed_units=29000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=21000
+[2026-09-19-08:55:09]dispatch=69, winner_id=4, winning_ticket=68, active_tickets=150, work_units_remaining=9000
+[2026-09-19-08:55:09]dispatch=69, winner_id=4, run_units=1000, completed_units=17000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=8000
+[2026-09-19-08:55:09]dispatch=70, winner_id=3, winning_ticket=31, active_tickets=150, work_units_remaining=29000
+[2026-09-19-08:55:09]dispatch=70, winner_id=3, run_units=1000, completed_units=12000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=28000
+[2026-09-19-08:55:09]dispatch=71, winner_id=3, winning_ticket=32, active_tickets=150, work_units_remaining=28000
+[2026-09-19-08:55:09]dispatch=71, winner_id=3, run_units=1000, completed_units=13000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=27000
+[2026-09-19-08:55:09]dispatch=72, winner_id=4, winning_ticket=74, active_tickets=150, work_units_remaining=8000
+[2026-09-19-08:55:09]dispatch=72, winner_id=4, run_units=1000, completed_units=18000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=7000
+[2026-09-19-08:55:09]dispatch=73, winner_id=5, winning_ticket=141, active_tickets=150, work_units_remaining=21000
+[2026-09-19-08:55:09]dispatch=73, winner_id=5, run_units=1000, completed_units=30000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=20000
+[2026-09-19-08:55:09]dispatch=74, winner_id=3, winning_ticket=44, active_tickets=150, work_units_remaining=27000
+[2026-09-19-08:55:09]dispatch=74, winner_id=3, run_units=1000, completed_units=14000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=26000
+[2026-09-19-08:55:09]dispatch=75, winner_id=5, winning_ticket=126, active_tickets=150, work_units_remaining=20000
+[2026-09-19-08:55:09]dispatch=75, winner_id=5, run_units=1000, completed_units=31000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=19000
+[2026-09-19-08:55:09]dispatch=76, winner_id=2, winning_ticket=28, active_tickets=150, work_units_remaining=24000
+[2026-09-19-08:55:09]dispatch=76, winner_id=2, run_units=1000, completed_units=7000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=23000
+[2026-09-19-08:55:09]dispatch=77, winner_id=5, winning_ticket=140, active_tickets=150, work_units_remaining=19000
+[2026-09-19-08:55:09]dispatch=77, winner_id=5, run_units=1000, completed_units=32000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=18000
+[2026-09-19-08:55:09]dispatch=78, winner_id=5, winning_ticket=149, active_tickets=150, work_units_remaining=18000
+[2026-09-19-08:55:09]dispatch=78, winner_id=5, run_units=1000, completed_units=33000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=17000
+[2026-09-19-08:55:09]dispatch=79, winner_id=5, winning_ticket=140, active_tickets=150, work_units_remaining=17000
+[2026-09-19-08:55:09]dispatch=79, winner_id=5, run_units=1000, completed_units=34000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=16000
+[2026-09-19-08:55:09]dispatch=80, winner_id=4, winning_ticket=80, active_tickets=150, work_units_remaining=7000
+[2026-09-19-08:55:09]dispatch=80, winner_id=4, run_units=1000, completed_units=19000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=6000
+[2026-09-19-08:55:09]dispatch=81, winner_id=4, winning_ticket=65, active_tickets=150, work_units_remaining=6000
+[2026-09-19-08:55:09]dispatch=81, winner_id=4, run_units=1000, completed_units=20000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=5000
+[2026-09-19-08:55:09]dispatch=82, winner_id=5, winning_ticket=143, active_tickets=150, work_units_remaining=16000
+[2026-09-19-08:55:09]dispatch=82, winner_id=5, run_units=1000, completed_units=35000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=15000
+[2026-09-19-08:55:09]dispatch=83, winner_id=5, winning_ticket=116, active_tickets=150, work_units_remaining=15000
+[2026-09-19-08:55:09]dispatch=83, winner_id=5, run_units=1000, completed_units=36000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=14000
+[2026-09-19-08:55:09]dispatch=84, winner_id=3, winning_ticket=47, active_tickets=150, work_units_remaining=26000
+[2026-09-19-08:55:09]dispatch=84, winner_id=3, run_units=1000, completed_units=15000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=25000
+[2026-09-19-08:55:09]dispatch=85, winner_id=5, winning_ticket=128, active_tickets=150, work_units_remaining=14000
+[2026-09-19-08:55:09]dispatch=85, winner_id=5, run_units=1000, completed_units=37000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=13000
+[2026-09-19-08:55:09]dispatch=86, winner_id=5, winning_ticket=125, active_tickets=150, work_units_remaining=13000
+[2026-09-19-08:55:09]dispatch=86, winner_id=5, run_units=1000, completed_units=38000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=12000
+[2026-09-19-08:55:09]dispatch=87, winner_id=3, winning_ticket=43, active_tickets=150, work_units_remaining=25000
+[2026-09-19-08:55:09]dispatch=87, winner_id=3, run_units=1000, completed_units=16000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=24000
+[2026-09-19-08:55:09]dispatch=88, winner_id=4, winning_ticket=81, active_tickets=150, work_units_remaining=5000
+[2026-09-19-08:55:09]dispatch=88, winner_id=4, run_units=1000, completed_units=21000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=4000
+[2026-09-19-08:55:09]dispatch=89, winner_id=5, winning_ticket=126, active_tickets=150, work_units_remaining=12000
+[2026-09-19-08:55:09]dispatch=89, winner_id=5, run_units=1000, completed_units=39000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=11000
+[2026-09-19-08:55:09]dispatch=90, winner_id=5, winning_ticket=109, active_tickets=150, work_units_remaining=11000
+[2026-09-19-08:55:09]dispatch=90, winner_id=5, run_units=1000, completed_units=40000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=10000
+[2026-09-19-08:55:09]dispatch=91, winner_id=4, winning_ticket=86, active_tickets=150, work_units_remaining=4000
+[2026-09-19-08:55:09]dispatch=91, winner_id=4, run_units=1000, completed_units=22000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=3000
+[2026-09-19-08:55:09]dispatch=92, winner_id=5, winning_ticket=150, active_tickets=150, work_units_remaining=10000
+[2026-09-19-08:55:09]dispatch=92, winner_id=5, run_units=1000, completed_units=41000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=9000
+[2026-09-19-08:55:09]dispatch=93, winner_id=5, winning_ticket=130, active_tickets=150, work_units_remaining=9000
+[2026-09-19-08:55:09]dispatch=93, winner_id=5, run_units=1000, completed_units=42000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=8000
+[2026-09-19-08:55:09]dispatch=94, winner_id=1, winning_ticket=10, active_tickets=150, work_units_remaining=14000
+[2026-09-19-08:55:09]dispatch=94, winner_id=1, run_units=1000, completed_units=7000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=13000
+[2026-09-19-08:55:09]dispatch=95, winner_id=4, winning_ticket=90, active_tickets=150, work_units_remaining=3000
+[2026-09-19-08:55:09]dispatch=95, winner_id=4, run_units=1000, completed_units=23000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=2000
+[2026-09-19-08:55:09]dispatch=96, winner_id=5, winning_ticket=129, active_tickets=150, work_units_remaining=8000
+[2026-09-19-08:55:09]dispatch=96, winner_id=5, run_units=1000, completed_units=43000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=7000
+[2026-09-19-08:55:09]dispatch=97, winner_id=4, winning_ticket=92, active_tickets=150, work_units_remaining=2000
+[2026-09-19-08:55:09]dispatch=97, winner_id=4, run_units=1000, completed_units=24000, state_after=TASK_READY, tickets_after=40, work_units_remaining_after=1000
+[2026-09-19-08:55:09]dispatch=98, winner_id=4, winning_ticket=86, active_tickets=150, work_units_remaining=1000
+[2026-09-19-08:55:09]dispatch=98, winner_id=4, run_units=1000, completed_units=25000, state_after=TASK_FINISHED, tickets_after=40, work_units_remaining_after=0
+[2026-09-19-08:55:09]dispatch=99, winner_id=5, winning_ticket=100, active_tickets=110, work_units_remaining=7000
+[2026-09-19-08:55:09]dispatch=99, winner_id=5, run_units=1000, completed_units=44000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=6000
+[2026-09-19-08:55:09]dispatch=100, winner_id=3, winning_ticket=34, active_tickets=110, work_units_remaining=24000
+[2026-09-19-08:55:09]dispatch=100, winner_id=3, run_units=1000, completed_units=17000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=23000
+[2026-09-19-08:55:09]dispatch=101, winner_id=5, winning_ticket=65, active_tickets=110, work_units_remaining=6000
+[2026-09-19-08:55:09]dispatch=101, winner_id=5, run_units=1000, completed_units=45000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=5000
+[2026-09-19-08:55:09]dispatch=102, winner_id=5, winning_ticket=72, active_tickets=110, work_units_remaining=5000
+[2026-09-19-08:55:09]dispatch=102, winner_id=5, run_units=1000, completed_units=46000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=4000
+[2026-09-19-08:55:09]dispatch=103, winner_id=2, winning_ticket=26, active_tickets=110, work_units_remaining=23000
+[2026-09-19-08:55:09]dispatch=103, winner_id=2, run_units=1000, completed_units=8000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=22000
+[2026-09-19-08:55:09]dispatch=104, winner_id=2, winning_ticket=16, active_tickets=110, work_units_remaining=22000
+[2026-09-19-08:55:09]dispatch=104, winner_id=2, run_units=1000, completed_units=9000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=21000
+[2026-09-19-08:55:09]dispatch=105, winner_id=5, winning_ticket=84, active_tickets=110, work_units_remaining=4000
+[2026-09-19-08:55:09]dispatch=105, winner_id=5, run_units=1000, completed_units=47000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=3000
+[2026-09-19-08:55:09]dispatch=106, winner_id=2, winning_ticket=20, active_tickets=110, work_units_remaining=21000
+[2026-09-19-08:55:09]dispatch=106, winner_id=2, run_units=1000, completed_units=10000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=20000
+[2026-09-19-08:55:09]dispatch=107, winner_id=5, winning_ticket=93, active_tickets=110, work_units_remaining=3000
+[2026-09-19-08:55:09]dispatch=107, winner_id=5, run_units=1000, completed_units=48000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=2000
+[2026-09-19-08:55:09]dispatch=108, winner_id=5, winning_ticket=94, active_tickets=110, work_units_remaining=2000
+[2026-09-19-08:55:09]dispatch=108, winner_id=5, run_units=1000, completed_units=49000, state_after=TASK_READY, tickets_after=50, work_units_remaining_after=1000
+[2026-09-19-08:55:09]dispatch=109, winner_id=5, winning_ticket=97, active_tickets=110, work_units_remaining=1000
+[2026-09-19-08:55:09]dispatch=109, winner_id=5, run_units=1000, completed_units=50000, state_after=TASK_FINISHED, tickets_after=50, work_units_remaining_after=0
+[2026-09-19-08:55:09]dispatch=110, winner_id=3, winning_ticket=51, active_tickets=60, work_units_remaining=23000
+[2026-09-19-08:55:09]dispatch=110, winner_id=3, run_units=1000, completed_units=18000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=22000
+[2026-09-19-08:55:09]dispatch=111, winner_id=3, winning_ticket=45, active_tickets=60, work_units_remaining=22000
+[2026-09-19-08:55:09]dispatch=111, winner_id=3, run_units=1000, completed_units=19000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=21000
+[2026-09-19-08:55:09]dispatch=112, winner_id=2, winning_ticket=19, active_tickets=60, work_units_remaining=20000
+[2026-09-19-08:55:09]dispatch=112, winner_id=2, run_units=1000, completed_units=11000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=19000
+[2026-09-19-08:55:09]dispatch=113, winner_id=2, winning_ticket=22, active_tickets=60, work_units_remaining=19000
+[2026-09-19-08:55:09]dispatch=113, winner_id=2, run_units=1000, completed_units=12000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=18000
+[2026-09-19-08:55:09]dispatch=114, winner_id=2, winning_ticket=29, active_tickets=60, work_units_remaining=18000
+[2026-09-19-08:55:09]dispatch=114, winner_id=2, run_units=1000, completed_units=13000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=17000
+[2026-09-19-08:55:09]dispatch=115, winner_id=3, winning_ticket=52, active_tickets=60, work_units_remaining=21000
+[2026-09-19-08:55:09]dispatch=115, winner_id=3, run_units=1000, completed_units=20000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=20000
+[2026-09-19-08:55:09]dispatch=116, winner_id=3, winning_ticket=54, active_tickets=60, work_units_remaining=20000
+[2026-09-19-08:55:09]dispatch=116, winner_id=3, run_units=1000, completed_units=21000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=19000
+[2026-09-19-08:55:09]dispatch=117, winner_id=3, winning_ticket=53, active_tickets=60, work_units_remaining=19000
+[2026-09-19-08:55:09]dispatch=117, winner_id=3, run_units=1000, completed_units=22000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=18000
+[2026-09-19-08:55:09]dispatch=118, winner_id=1, winning_ticket=8, active_tickets=60, work_units_remaining=13000
+[2026-09-19-08:55:09]dispatch=118, winner_id=1, run_units=1000, completed_units=8000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=12000
+[2026-09-19-08:55:09]dispatch=119, winner_id=2, winning_ticket=21, active_tickets=60, work_units_remaining=17000
+[2026-09-19-08:55:09]dispatch=119, winner_id=2, run_units=1000, completed_units=14000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=16000
+[2026-09-19-08:55:09]dispatch=120, winner_id=1, winning_ticket=8, active_tickets=60, work_units_remaining=12000
+[2026-09-19-08:55:09]dispatch=120, winner_id=1, run_units=1000, completed_units=9000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=11000
+[2026-09-19-08:55:09]dispatch=121, winner_id=3, winning_ticket=44, active_tickets=60, work_units_remaining=18000
+[2026-09-19-08:55:09]dispatch=121, winner_id=3, run_units=1000, completed_units=23000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=17000
+[2026-09-19-08:55:09]dispatch=122, winner_id=3, winning_ticket=43, active_tickets=60, work_units_remaining=17000
+[2026-09-19-08:55:09]dispatch=122, winner_id=3, run_units=1000, completed_units=24000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=16000
+[2026-09-19-08:55:09]dispatch=123, winner_id=2, winning_ticket=13, active_tickets=60, work_units_remaining=16000
+[2026-09-19-08:55:09]dispatch=123, winner_id=2, run_units=1000, completed_units=15000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=15000
+[2026-09-19-08:55:09]dispatch=124, winner_id=3, winning_ticket=57, active_tickets=60, work_units_remaining=16000
+[2026-09-19-08:55:09]dispatch=124, winner_id=3, run_units=1000, completed_units=25000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=15000
+[2026-09-19-08:55:09]dispatch=125, winner_id=3, winning_ticket=48, active_tickets=60, work_units_remaining=15000
+[2026-09-19-08:55:09]dispatch=125, winner_id=3, run_units=1000, completed_units=26000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=14000
+[2026-09-19-08:55:09]dispatch=126, winner_id=3, winning_ticket=59, active_tickets=60, work_units_remaining=14000
+[2026-09-19-08:55:09]dispatch=126, winner_id=3, run_units=1000, completed_units=27000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=13000
+[2026-09-19-08:55:09]dispatch=127, winner_id=3, winning_ticket=48, active_tickets=60, work_units_remaining=13000
+[2026-09-19-08:55:09]dispatch=127, winner_id=3, run_units=1000, completed_units=28000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=12000
+[2026-09-19-08:55:09]dispatch=128, winner_id=2, winning_ticket=14, active_tickets=60, work_units_remaining=15000
+[2026-09-19-08:55:09]dispatch=128, winner_id=2, run_units=1000, completed_units=16000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=14000
+[2026-09-19-08:55:09]dispatch=129, winner_id=2, winning_ticket=11, active_tickets=60, work_units_remaining=14000
+[2026-09-19-08:55:09]dispatch=129, winner_id=2, run_units=1000, completed_units=17000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=13000
+[2026-09-19-08:55:09]dispatch=130, winner_id=2, winning_ticket=27, active_tickets=60, work_units_remaining=13000
+[2026-09-19-08:55:09]dispatch=130, winner_id=2, run_units=1000, completed_units=18000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=12000
+[2026-09-19-08:55:09]dispatch=131, winner_id=3, winning_ticket=56, active_tickets=60, work_units_remaining=12000
+[2026-09-19-08:55:09]dispatch=131, winner_id=3, run_units=1000, completed_units=29000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=11000
+[2026-09-19-08:55:09]dispatch=132, winner_id=1, winning_ticket=9, active_tickets=60, work_units_remaining=11000
+[2026-09-19-08:55:09]dispatch=132, winner_id=1, run_units=1000, completed_units=10000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=10000
+[2026-09-19-08:55:09]dispatch=133, winner_id=2, winning_ticket=26, active_tickets=60, work_units_remaining=12000
+[2026-09-19-08:55:09]dispatch=133, winner_id=2, run_units=1000, completed_units=19000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=11000
+[2026-09-19-08:55:09]dispatch=134, winner_id=2, winning_ticket=12, active_tickets=60, work_units_remaining=11000
+[2026-09-19-08:55:09]dispatch=134, winner_id=2, run_units=1000, completed_units=20000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=10000
+[2026-09-19-08:55:09]dispatch=135, winner_id=2, winning_ticket=23, active_tickets=60, work_units_remaining=10000
+[2026-09-19-08:55:09]dispatch=135, winner_id=2, run_units=1000, completed_units=21000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=9000
+[2026-09-19-08:55:09]dispatch=136, winner_id=2, winning_ticket=20, active_tickets=60, work_units_remaining=9000
+[2026-09-19-08:55:09]dispatch=136, winner_id=2, run_units=1000, completed_units=22000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=8000
+[2026-09-19-08:55:09]dispatch=137, winner_id=3, winning_ticket=56, active_tickets=60, work_units_remaining=11000
+[2026-09-19-08:55:09]dispatch=137, winner_id=3, run_units=1000, completed_units=30000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=10000
+[2026-09-19-08:55:09]dispatch=138, winner_id=1, winning_ticket=9, active_tickets=60, work_units_remaining=10000
+[2026-09-19-08:55:09]dispatch=138, winner_id=1, run_units=1000, completed_units=11000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=9000
+[2026-09-19-08:55:09]dispatch=139, winner_id=3, winning_ticket=39, active_tickets=60, work_units_remaining=10000
+[2026-09-19-08:55:09]dispatch=139, winner_id=3, run_units=1000, completed_units=31000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=9000
+[2026-09-19-08:55:09]dispatch=140, winner_id=2, winning_ticket=13, active_tickets=60, work_units_remaining=8000
+[2026-09-19-08:55:09]dispatch=140, winner_id=2, run_units=1000, completed_units=23000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=7000
+[2026-09-19-08:55:09]dispatch=141, winner_id=3, winning_ticket=35, active_tickets=60, work_units_remaining=9000
+[2026-09-19-08:55:09]dispatch=141, winner_id=3, run_units=1000, completed_units=32000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=8000
+[2026-09-19-08:55:09]dispatch=142, winner_id=3, winning_ticket=34, active_tickets=60, work_units_remaining=8000
+[2026-09-19-08:55:09]dispatch=142, winner_id=3, run_units=1000, completed_units=33000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=7000
+[2026-09-19-08:55:09]dispatch=143, winner_id=3, winning_ticket=49, active_tickets=60, work_units_remaining=7000
+[2026-09-19-08:55:09]dispatch=143, winner_id=3, run_units=1000, completed_units=34000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=6000
+[2026-09-19-08:55:09]dispatch=144, winner_id=2, winning_ticket=26, active_tickets=60, work_units_remaining=7000
+[2026-09-19-08:55:09]dispatch=144, winner_id=2, run_units=1000, completed_units=24000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=6000
+[2026-09-19-08:55:09]dispatch=145, winner_id=2, winning_ticket=15, active_tickets=60, work_units_remaining=6000
+[2026-09-19-08:55:09]dispatch=145, winner_id=2, run_units=1000, completed_units=25000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=5000
+[2026-09-19-08:55:09]dispatch=146, winner_id=3, winning_ticket=40, active_tickets=60, work_units_remaining=6000
+[2026-09-19-08:55:09]dispatch=146, winner_id=3, run_units=1000, completed_units=35000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=5000
+[2026-09-19-08:55:09]dispatch=147, winner_id=3, winning_ticket=60, active_tickets=60, work_units_remaining=5000
+[2026-09-19-08:55:09]dispatch=147, winner_id=3, run_units=1000, completed_units=36000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=4000
+[2026-09-19-08:55:09]dispatch=148, winner_id=1, winning_ticket=10, active_tickets=60, work_units_remaining=9000
+[2026-09-19-08:55:09]dispatch=148, winner_id=1, run_units=1000, completed_units=12000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=8000
+[2026-09-19-08:55:09]dispatch=149, winner_id=3, winning_ticket=45, active_tickets=60, work_units_remaining=4000
+[2026-09-19-08:55:09]dispatch=149, winner_id=3, run_units=1000, completed_units=37000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=3000
+[2026-09-19-08:55:09]dispatch=150, winner_id=3, winning_ticket=38, active_tickets=60, work_units_remaining=3000
+[2026-09-19-08:55:09]dispatch=150, winner_id=3, run_units=1000, completed_units=38000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=2000
+[2026-09-19-08:55:09]dispatch=151, winner_id=3, winning_ticket=43, active_tickets=60, work_units_remaining=2000
+[2026-09-19-08:55:09]dispatch=151, winner_id=3, run_units=1000, completed_units=39000, state_after=TASK_READY, tickets_after=30, work_units_remaining_after=1000
+[2026-09-19-08:55:09]dispatch=152, winner_id=3, winning_ticket=38, active_tickets=60, work_units_remaining=1000
+[2026-09-19-08:55:09]dispatch=152, winner_id=3, run_units=1000, completed_units=40000, state_after=TASK_FINISHED, tickets_after=30, work_units_remaining_after=0
+[2026-09-19-08:55:09]dispatch=153, winner_id=2, winning_ticket=15, active_tickets=30, work_units_remaining=5000
+[2026-09-19-08:55:09]dispatch=153, winner_id=2, run_units=1000, completed_units=26000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=4000
+[2026-09-19-08:55:09]dispatch=154, winner_id=2, winning_ticket=12, active_tickets=30, work_units_remaining=4000
+[2026-09-19-08:55:09]dispatch=154, winner_id=2, run_units=1000, completed_units=27000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=3000
+[2026-09-19-08:55:09]dispatch=155, winner_id=2, winning_ticket=14, active_tickets=30, work_units_remaining=3000
+[2026-09-19-08:55:09]dispatch=155, winner_id=2, run_units=1000, completed_units=28000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=2000
+[2026-09-19-08:55:09]dispatch=156, winner_id=2, winning_ticket=28, active_tickets=30, work_units_remaining=2000
+[2026-09-19-08:55:09]dispatch=156, winner_id=2, run_units=1000, completed_units=29000, state_after=TASK_READY, tickets_after=20, work_units_remaining_after=1000
+[2026-09-19-08:55:09]dispatch=157, winner_id=2, winning_ticket=15, active_tickets=30, work_units_remaining=1000
+[2026-09-19-08:55:09]dispatch=157, winner_id=2, run_units=1000, completed_units=30000, state_after=TASK_FINISHED, tickets_after=20, work_units_remaining_after=0
+[2026-09-19-08:55:09]dispatch=158, winner_id=1, winning_ticket=10, active_tickets=10, work_units_remaining=8000
+[2026-09-19-08:55:09]dispatch=158, winner_id=1, run_units=1000, completed_units=13000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=7000
+[2026-09-19-08:55:09]dispatch=159, winner_id=1, winning_ticket=1, active_tickets=10, work_units_remaining=7000
+[2026-09-19-08:55:09]dispatch=159, winner_id=1, run_units=1000, completed_units=14000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=6000
+[2026-09-19-08:55:09]dispatch=160, winner_id=1, winning_ticket=4, active_tickets=10, work_units_remaining=6000
+[2026-09-19-08:55:09]dispatch=160, winner_id=1, run_units=1000, completed_units=15000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=5000
+[2026-09-19-08:55:09]dispatch=161, winner_id=1, winning_ticket=10, active_tickets=10, work_units_remaining=5000
+[2026-09-19-08:55:09]dispatch=161, winner_id=1, run_units=1000, completed_units=16000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=4000
+[2026-09-19-08:55:09]dispatch=162, winner_id=1, winning_ticket=2, active_tickets=10, work_units_remaining=4000
+[2026-09-19-08:55:09]dispatch=162, winner_id=1, run_units=1000, completed_units=17000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=3000
+[2026-09-19-08:55:09]dispatch=163, winner_id=1, winning_ticket=7, active_tickets=10, work_units_remaining=3000
+[2026-09-19-08:55:09]dispatch=163, winner_id=1, run_units=1000, completed_units=18000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=2000
+[2026-09-19-08:55:09]dispatch=164, winner_id=1, winning_ticket=1, active_tickets=10, work_units_remaining=2000
+[2026-09-19-08:55:09]dispatch=164, winner_id=1, run_units=1000, completed_units=19000, state_after=TASK_READY, tickets_after=10, work_units_remaining_after=1000
+[2026-09-19-08:55:09]dispatch=165, winner_id=1, winning_ticket=8, active_tickets=10, work_units_remaining=1000
+[2026-09-19-08:55:09]dispatch=165, winner_id=1, run_units=1000, completed_units=20000, state_after=TASK_FINISHED, tickets_after=10, work_units_remaining_after=0

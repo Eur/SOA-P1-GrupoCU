@@ -1,0 +1,8 @@
+---
+title: "Lottery Scheduler: proportionality experiment (cases 3 and 4)"
+output: html_document
+---
+
+```{r}
+
+```
